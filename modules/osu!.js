@@ -237,13 +237,22 @@ module.exports = {
             let userScores = await osuapi.user.getRecent(
               name,
               nodesu.Mode.all,
-              1,
+              5,
               nodesu.LookupType.string
             );
             if (user) {
               msg.channel.createMessage("Now tracking " + name);
               console.log(user);
               console.log(userScores);
+              if (tracking[msg.guild.id][msg.channel.id][name]) {
+                msg.channel.createMessage(
+                  "This user is already being tracked!"
+                );
+                return;
+              }
+              tracking[msg.guild.id][msg.channel.id][name] = {};
+              tracking[msg.guild.id][msg.channel.id][name].user = user;
+              tracking[msg.guild.id][msg.channel.id][name].latest = userScores;
             } else {
               msg.channel.createMessage(
                 "A user named " + name + " does not exist."
@@ -288,15 +297,19 @@ module.exports = {
   }
 };
 let queryApi = async function() {
-  let newDat = {};
-  for (user in tracking) {
-    let name = tracking[user].name;
-    let data = await osuapi.user.getRecent(
-      name,
-      nodesu.Mode.all,
-      5,
-      nodesu.LookupType.string
-    );
+  let newDat = tracking;
+  for (guild in tracking) {
+    for (channel in tracking[guild]) {
+      for (user in tracking[guild][channel]) {
+        let name = tracking[guild][channel][user].name;
+        let data = await osuapi.user.getRecent(
+          name,
+          nodesu.Mode.all,
+          5,
+          nodesu.LookupType.string
+        );
+      }
+    }
   }
 };
 
