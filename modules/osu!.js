@@ -241,7 +241,6 @@ module.exports = {
               nodesu.LookupType.string
             );
             if (user) {
-              msg.channel.createMessage("Now tracking " + name);
               console.log(user);
               console.log(userScores);
               if (tracking[msg.guild.id][msg.channel.id][name]) {
@@ -253,6 +252,7 @@ module.exports = {
               tracking[msg.guild.id][msg.channel.id][name] = {};
               tracking[msg.guild.id][msg.channel.id][name].user = user;
               tracking[msg.guild.id][msg.channel.id][name].latest = userScores;
+              msg.channel.createMessage("Now tracking " + name);
             } else {
               msg.channel.createMessage(
                 "A user named " + name + " does not exist."
@@ -309,11 +309,15 @@ let queryApi = async function() {
           nodesu.LookupType.string
         );
         let newMapSet = [];
-        for (map in data) {
-          let ts = data[map].date;
-          let ots = tracking[guild][channel][user].latest[0].date;
-          if (new Date(ts).getTime() > new Date(ots).getTime()) {
-            newMapSet.push(data[map]);
+        if (!tracking[guild][channel][user].latest[0]) {
+          newMapSet = data;
+        } else {
+          for (map in data) {
+            let ts = data[map].date;
+            let ots = tracking[guild][channel][user].latest[0].date;
+            if (new Date(ts).getTime() > new Date(ots).getTime()) {
+              newMapSet.push(data[map]);
+            }
           }
         }
         for (nm in newMapSet) {
@@ -325,6 +329,7 @@ let queryApi = async function() {
   }
 };
 function pushLatest(map) {
+  console.log("\n\n\n\n\n");
   console.log(map);
   msg.channel.createMessage("debug.. " + map.beatmap_id + " sc " + map.score);
 }
