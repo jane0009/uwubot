@@ -242,10 +242,8 @@ module.exports = {
             );
             if (user) {
               msg.channel.createMessage("Now tracking " + name);
-              msg.channel.createMessage(
-                "debug.." + user.user_id,
-                userScores[0].beatmap_id
-              );
+              console.log(user);
+              console.log(userScores);
             } else {
               msg.channel.createMessage(
                 "A user named " + name + " does not exist."
