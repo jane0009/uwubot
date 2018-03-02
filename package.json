@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "droll": "^0.2.1",
+    "eris": "^0.8.2",
+    "later": "^1.2.0",
+    "nodesu": "^0.6.2",
+    "request": "^2.83.0",
+    "require-reload": "^0.2.2",
+    "retry-as-promised": "^2.3.2"
+  }
+}
