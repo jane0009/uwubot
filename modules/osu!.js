@@ -246,6 +246,8 @@ module.exports = {
                         msg.channel.createMessage("Removing tracking for " + name);
                         delete tracking[msg.guild.id][msg.channel.id][name];
                         break;
+                    default:
+                        msg.channel.createMessage("```\nuse <track add to add a user\nuse <track remove to remove a user\n```")
                 }
             }
         }

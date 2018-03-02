@@ -325,7 +325,7 @@ module.exports = {
         ];
         if (args == "g") {
         } else {
-          exec("git pull", (e, out, err) => {
+          exec("cd uwubot; git pull", (e, out, err) => {
             if (e) {
               msg.channel.createMessage("Error\n```" + e + "```");
             } else {
