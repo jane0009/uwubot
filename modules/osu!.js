@@ -291,7 +291,7 @@ module.exports = {
       type: "interval",
       time: 60000,
       func: function() {
-        let res = queryApi();
+        queryApi();
       }
     }
   }
@@ -308,11 +308,26 @@ let queryApi = async function() {
           5,
           nodesu.LookupType.string
         );
+        let newMapSet = [];
+        for (map in data) {
+          let ts = data[map].date;
+          let ots = tracking[guild][channel][user].latest[0].date;
+          if (new Date(ts).getTime() > new Date(ots).getTime()) {
+            newMapSet.push(data[map]);
+          }
+        }
+        for (nm in newMapSet) {
+          pushLatest(newMapSet[nm]);
+        }
+        tracking[guild][channel][user].latest = newMapSet;
       }
     }
   }
 };
-
+function pushLatest(map) {
+  console.log(map);
+  msg.channel.createMessage("debug.. " + map.beatmap_id + " sc " + map.score);
+}
 function standardAcc(
   count300,
   count100,
