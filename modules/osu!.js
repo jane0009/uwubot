@@ -328,10 +328,12 @@ let queryApi = async function() {
           5,
           nodesu.LookupType.string
         );
+        console.log(data);
         let newMapSet = [];
         if (!tracking[guild][channel][user].latest[0]) {
           newMapSet = data;
         } else {
+          console.log("f");
           for (map in data) {
             let ts = data[map].date;
             let ots = tracking[guild][channel][user].latest[0].date;
