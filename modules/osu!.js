@@ -189,7 +189,7 @@ module.exports = {
                             },
                             {
                                 name: "Mods",
-                                value: scores[num].mods + "",
+                                value: "[" + sscores[num].mods + "]",
                                 inline: true
                             },
                             {
@@ -316,7 +316,7 @@ let queryApi = async function() {
                 let name = tracking[guild][channel][user].user.name;
                 let data = await osuapi.getUserRecent({
                     u: name,
-                    limit: cnum
+                    limit: 5
                 });
                 //console.log("dat", name, data);
                 let newMapSet = [];
@@ -533,7 +533,7 @@ let func = async function(m, e, u) {
                         },
                         {
                             name: "Mods",
-                            value: scores[num].mods + "",
+                            value: "[" + scores[num].mods + "]",
                             inline: true
                         },
                         {
