@@ -125,7 +125,7 @@ module.exports = {
                 let num = 0;
                 console.log(scores[num]);
                 let mapL = await osuapi.getBeatmaps({
-                    b: scores[num].id
+                    b: scores[num].beatmapId
                 });
                 let map = mapL[0];
                 let m = await msg.channel.createMessage({
@@ -357,7 +357,7 @@ async function pushLatest(gid, cid, score, usern) {
         u: name
     });
     let mapL = await osuapi.getBeatmaps({
-        b: scores[num].id
+        b: score.beatmapId
     });
     let map = mapL[0];
     /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
@@ -472,7 +472,7 @@ let func = async function(m, e, u) {
             let num = listening[m.id].currentMap;
             console.log(scores[num]);
             let mapL = await osuapi.getBeatmaps({
-                b: scores[num].id
+                b: scores[num].beatmapId
             });
             let map = mapL[0];
             m.edit({
