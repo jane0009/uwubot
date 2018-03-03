@@ -27,10 +27,17 @@ module.exports = {
         let c = args.split(" ");
         switch(c[0]) {
           case "add":
+          if(set[msg.author.id]) {
+            msg.channel.createMessage("changed user from " + set[msg.author.id] + " to " + c[1])
+          }
+          else {
+            msg.channel.createMessage("set user to " + c[1])
+          }
           set[msg.author.id] = c[1];
           break;
           case "remove":
           delete set[msg.author.id];
+          msg.channel.createMessage("removed your current osu! user.")
           break;
           default:
           msg.channel.createMessage("usage:\n```\n<set add [name]\n<set remove\n```")
@@ -47,7 +54,7 @@ module.exports = {
       func: async function(msg, args, data) {
         let c = args.split(" ");
         let name = c[0];
-        let cnum = parseInt(c[1]) ? parseInt(c[1]) : 5;
+        let cnum = parseInt(c[1]) ? parseInt(c[1]) : parseInt(c[0]) ? parseInt(c[0]) : 5;
         let isStats = false;
         if (c[0] == "stats") {
           isStats = true;
@@ -197,7 +204,7 @@ module.exports = {
               },
               {
                 name: "PP",
-                value: user.pp.raw,
+                value: scores[num].pp,
                 inline: true
               },
               {
@@ -342,7 +349,7 @@ module.exports = {
     example: {
       disabled: false,
       type: "interval",
-      time: 60000,
+      time: 120000,
       func: function() {
         queryApi();
       }
@@ -383,7 +390,9 @@ let queryApi = async function() {
         //console.log("nms", newMapSet);
         for (nm in newMapSet) {
           if (newMapSet[nm].rank != "F") {
-            pushLatest(guild, channel, newMapSet[nm], user);
+            setTimeout(()=>{
+              pushLatest(guild, channel, newMapSet[nm], user);
+            },30000)
           }
         }
         if (newMapSet && newMapSet[0]) {
@@ -397,6 +406,25 @@ let queryApi = async function() {
     JSON.stringify({track:tracking,set:set})
   );
 };
+function getColor(rank) {
+  switch(rank) {
+    case "XH":
+    case "SH": return "#FFFFFF"
+    break;
+    case "SS":
+    case "S": return "#FEF337"
+    break;
+    case "A": return "#46E424"
+    break;
+    case "B": return "#3B73FF"
+    break;
+    case "C": return "#FF35F0"
+    break;
+    case "D":
+    case "F":
+    default:  return "#F33836"
+  }
+}
 async function pushLatest(gid, cid, score, usern) {
   //console.log("\n\n\n\n\n");
   let user = await osuapi.getUser({
@@ -405,7 +433,17 @@ async function pushLatest(gid, cid, score, usern) {
   let mapL = await osuapi.getBeatmaps({
     b: score.beatmapId
   });
-  console.log(score);
+  //console.log(score);
+  scores = await osuapi.getScores({
+    b:score.beatmapId,
+    u: usern
+  });
+  scores.sort((a,b)=>{
+    let ad = new Date(a.date).getTime();
+    let bd = new Date(b.date).getTime();
+    return ad - bd;
+  })
+  console.log(scores);
   let map = mapL[0];
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
@@ -433,36 +471,18 @@ async function pushLatest(gid, cid, score, usern) {
       thumbnail: {
         url: `https://b.ppy.sh/thumb/${map.beatmapSetId}.jpg`
       },
-      color: 16738740,
+      color: getColor(score.rank),
       description: `[${map.title} by ${map.artist} [${
         map.version
       }]](https://osu.ppy.sh/beatmapsets/${map.beatmapSetId}/#osu/${map.id})
        mapped by ${map.creator}
-       ${global.round(map.difficulty.rating, 0.01)} stars
-      mods: [${score.mods}]
-      accuracy: ${determineAcc(map.mode, score.counts)}
-      length: ${result} (${map.bpm}bpm)`
+       ${map.mode} - ${global.round(map.difficulty.rating, 0.01)} stars
+       length: ${result} (${map.bpm}bpm)
+       accuracy: ${determineAcc(map.mode, score.counts)}
+       score: ${map.score} (${map.pp}pp)
+       mods: [${score.mods}]`
     }
   });
-  if (
-    score.counts["300"] &&
-    score.counts["100"] &&
-    score.counts["50"] &&
-    score.counts.miss
-  ) {
-    chan.createMessage(
-      "PP: " +
-        score.pp +
-        " ACC: " +
-        standardAcc(
-          score.counts["300"],
-          score.counts["100"],
-          score.counts["50"],
-          score.counts.miss
-        ) +
-        "%"
-    );
-  }
 }
 
 function determineAcc(type, counts) {
@@ -561,7 +581,7 @@ let func = async function(m, e, u) {
             },
             {
               name: "PP",
-              value: user.pp.raw,
+              value: scores[num].pp,
               inline: true
             },
             {
