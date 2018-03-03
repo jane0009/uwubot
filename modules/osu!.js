@@ -253,7 +253,11 @@ module.exports = {
                 return;
               }
               tracking[msg.guild.id][msg.channel.id][name] = {};
-              tracking[msg.guild.id][msg.channel.id][name].user = user;
+              tracking[msg.guild.id][msg.channel.id][name].user = {
+                user_id: user.user_id,
+                username: user.username,
+                total_score: user.total_score
+              };
               tracking[msg.guild.id][msg.channel.id][name].latest = userScores;
               msg.channel.createMessage("Now tracking " + name);
               fs.writeFileSync(
@@ -328,7 +332,7 @@ let queryApi = async function() {
           5,
           nodesu.LookupType.string
         );
-        console.log("dat", data);
+        console.log("dat", name, data);
         let newMapSet = [];
         if (!tracking[guild][channel][user].latest[0]) {
           newMapSet = data;
