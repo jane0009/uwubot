@@ -204,7 +204,7 @@ module.exports = {
               },
               {
                 name: "PP",
-                value: scores[num].pp,
+                value: scores[num].pp ? scores[num].pp : user.pp.raw,
                 inline: true
               },
               {
@@ -587,7 +587,7 @@ let func = async function(m, e, u) {
             },
             {
               name: "PP",
-              value: scores[num].pp,
+              value: scores[num].pp ? scores[num].pp : user.pp.raw,
               inline: true
             },
             {
