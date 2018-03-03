@@ -1,9 +1,13 @@
+import { writeFileSync } from "fs";
+
 let nodesu = require("nodesu");
 let path = require("path");
 let osuapi = new nodesu.Client(global.janebot.keys.osu);
 let listening = {};
 let tracking = {};
-let dataFolder = path.join(__dirname, "modules");
+let dataFolder = path.join(__dirname, "data");
+let cfg = require(path.join(dataFolder, "osutracking.json"));
+tracking = cfg;
 module.exports = {
   disabled: false,
   name: "osu!",
@@ -329,6 +333,11 @@ let queryApi = async function() {
       }
     }
   }
+  fs,
+    writeFileSync(
+      path.join(dataFolder, "osutracking.json"),
+      JSON.stringify(tracking)
+    );
 };
 function pushLatest(map) {
   console.log("\n\n\n\n\n");
