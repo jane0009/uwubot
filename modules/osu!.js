@@ -35,8 +35,7 @@ module.exports = {
                     return;
                 }
                 //console.log(user);
-                let userScores = isStats ?
-                    [] :
+                let userScores = isStats ? [] :
                     await osuapi.getUserRecent({
                         u: name,
                         limit: cnum
@@ -108,12 +107,10 @@ module.exports = {
                                     value: user.counts.A,
                                     inline: true
                                 },
-                                isStats ?
-                                {
+                                isStats ? {
                                     name: "\u200b",
                                     value: "\u200b"
-                                } :
-                                {
+                                } : {
                                     name: "Could not find recent scores for this user!",
                                     value: "\u200b"
                                 }
@@ -192,7 +189,7 @@ module.exports = {
                             },
                             {
                                 name: "Mods",
-                                value: scores[num].mods,
+                                value: scores[num].mods + "",
                                 inline: true
                             },
                             {
@@ -536,7 +533,7 @@ let func = async function(m, e, u) {
                         },
                         {
                             name: "Mods",
-                            value: scores[num].mods,
+                            value: scores[num].mods + "",
                             inline: true
                         },
                         {
