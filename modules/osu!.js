@@ -1,7 +1,8 @@
 let fs = require("fs");
 let nodesu = require("nodesu");
+let node_osu = require("node-osu");
 let path = require("path");
-let osuapi = new nodesu.Client(global.janebot.keys.osu);
+let osuapi = new node_osu.Api(global.janebot.keys.osu);
 let listening = {};
 let tracking = {};
 let dataFolder = path.join("/home/jane/uwubot", "data");
@@ -26,11 +27,8 @@ module.exports = {
           msg.channel.createMessage("not enough parameters...");
           return;
         }
-        let user = await osuapi.user.get(
-          name,
-          nodesu.Mode.all,
-          1,
-          nodesu.LookupType.string
+        let user = await osuapi.getUser(
+          {u: name}
         );
         if (!user) {
           msg.channel.createMessage("could not find a user by that name...");
@@ -39,11 +37,8 @@ module.exports = {
         //console.log(user);
         let userScores = isStats
           ? []
-          : await osuapi.user.getRecent(
-              name,
-              nodesu.Mode.all,
-              cnum,
-              nodesu.LookupType.string
+          : await osuapi.getUserRecent(
+            {u: name, limit: cnum}
             );
         if (!userScores[0]) {
           msg.channel.createMessage({
@@ -131,21 +126,21 @@ module.exports = {
         let scores = userScores;
         //let user = listening[m.id].user;
         let num = 0;
-        let mapL = await osuapi.beatmaps.getByBeatmapId(scores[num].beatmap_id);
+        let mapL = await osuapi.getBeatmaps({b:scores[num].id});
         let map = mapL[0];
         let m = await msg.channel.createMessage({
           embed: {
             title: `${user.username} (userid: ${user.user_id})`,
             thumbnail: {
-              url: `https://b.ppy.sh/thumb/${map.beatmapset_id}.jpg`
+              url: `https://b.ppy.sh/thumb/${map.beatmapSetId}.jpg`
             },
             color: 16738740,
             description: `use \`osu <user> stats\` to get player stats\n[${
               map.title
             } by ${map.artist} [${
               map.version
-            }]](https://osu.ppy.sh/beatmapsets/${map.beatmapset_id}/#osu/${
-              map.beatmap_id
+            }]](https://osu.ppy.sh/beatmapsets/${map.beatmapSetId}/#osu/${
+              map.id
             })\n mapped by ${map.creator}\n${global.round(
               map.difficultyrating,
               0.01
@@ -231,18 +226,12 @@ module.exports = {
           tracking[msg.guild.id][msg.channel.id] = {};
         switch (cmd) {
           case "add":
-            let user = await osuapi.user.get(
-              name,
-              nodesu.Mode.all,
-              1,
-              nodesu.LookupType.string
-            );
-            let userScores = await osuapi.user.getRecent(
-              name,
-              nodesu.Mode.all,
-              5,
-              nodesu.LookupType.string
-            );
+          let user = await osuapi.getUser(
+            {u: name}
+          );
+            let userScores = await osuapi.getUserRecent(
+              {u: name, limit: cnum}
+              );
             if (user) {
               //console.log(user);
               //console.log(userScores);
@@ -326,12 +315,9 @@ let queryApi = async function() {
     for (channel in tracking[guild]) {
       for (user in tracking[guild][channel]) {
         let name = tracking[guild][channel][user].user.username;
-        let data = await osuapi.user.getRecent(
-          name,
-          nodesu.Mode.all,
-          5,
-          nodesu.LookupType.string
-        );
+        let data = await osuapi.getUserRecent(
+          {u: name, limit: cnum}
+          );
         //console.log("dat", name, data);
         let newMapSet = [];
         if (!tracking[guild][channel][user].latest[0]) {
@@ -366,15 +352,12 @@ let queryApi = async function() {
 };
 async function pushLatest(gid, cid, score, usern) {
   //console.log("\n\n\n\n\n");
-  let user = await osuapi.user.get(
-    usern,
-    nodesu.Mode.all,
-    1,
-    nodesu.LookupType.string
+  let user = await osuapi.getUser(
+    {u: name}
   );
-  let mapL = await osuapi.beatmaps.getByBeatmapId(score.beatmap_id);
+  let mapL = await osuapi.getBeatmaps({b:scores[num].id});
   let map = mapL[0];
-  /*let scores = await osuapi.scores.get(score.beatmap_id, score.enabled_mods, 1, usern, nodesu.LookupType.string);
+  /*let scores = await osuapi.scores.get(score.id, score.enabled_mods, 1, usern, nodesu.LookupType.string);
   console.log(scores);*/
   //console.log(user, usern);
   if (!map) {
@@ -385,23 +368,22 @@ async function pushLatest(gid, cid, score, usern) {
         "there was a new map for " +
           usern +
           ", but it could not be queried via the API. The ID is " +
-          score.beatmap_id
+          score.id
       );
     return;
   }
-  let type = "";
   let chan = global.janebot.bot.guilds.get(gid).channels.get(cid);
   chan.createMessage({
     embed: {
       title: `new! for user ${user.username} (userid: ${user.user_id})`,
       thumbnail: {
-        url: `https://b.ppy.sh/thumb/${map.beatmapset_id}.jpg`
+        url: `https://b.ppy.sh/thumb/${map.beatmapSetId}.jpg`
       },
       color: 16738740,
       description: `[${map.title} by ${map.artist} [${
         map.version
-      }]](https://osu.ppy.sh/beatmapsets/${map.beatmapset_id}/#osu/${
-        map.beatmap_id
+      }]](https://osu.ppy.sh/beatmapsets/${map.beatmapSetId}/#osu/${
+        map.id
       })
        mapped by ${map.creator}
        ${global.round(
@@ -412,7 +394,7 @@ async function pushLatest(gid, cid, score, usern) {
         score.enabled_mods + " | " + determineMods(score.enabled_mods)
       }]
       accuracy: ${
-        determineAcc("standard",
+        determineAcc(map.mode,
           [score.count300,
           score.count100,
           score.count50,
@@ -450,10 +432,10 @@ function determineMods(modsBW) {
 }
 function determineAcc(type, scoreArr) {
   switch(type) {
-    case "standard": return standardAcc(scoreArr[0],scoreArr[1],scoreArr[2],scoreArr[3]);
-    case "ctb":
-    case "mania":
-    case "taiko":
+    case "Standard": return standardAcc(scoreArr[0],scoreArr[1],scoreArr[2],scoreArr[3]);
+    case "Ctb":
+    case "Mania":
+    case "Taiko":
     default: return 0;
   }
 }
@@ -495,19 +477,19 @@ let func = async function(m, e, u) {
       }
       let user = listening[m.id].user;
       let num = listening[m.id].currentMap;
-      let mapL = await osuapi.beatmaps.getByBeatmapId(scores[num].beatmap_id);
+      let mapL = await osuapi.getBeatmaps({b:scores[num].id});
       let map = mapL[0];
       m.edit({
         embed: {
           title: `${user.username} (userid: ${user.user_id})`,
           thumbnail: {
-            url: `https://b.ppy.sh/thumb/${map.beatmapset_id}.jpg`
+            url: `https://b.ppy.sh/thumb/${map.beatmapSetId}.jpg`
           },
           color: 16738740,
           description: `[${map.title} by ${map.artist} [${
             map.version
-          }]](https://osu.ppy.sh/beatmapsets/${map.beatmapset_id}/#osu/${
-            map.beatmap_id
+          }]](https://osu.ppy.sh/beatmapsets/${map.beatmapSetId}/#osu/${
+            map.id
           })\n mapped by ${map.creator}\n${global.round(
             map.difficultyrating,
             0.01
