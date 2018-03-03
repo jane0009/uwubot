@@ -244,8 +244,8 @@ module.exports = {
               nodesu.LookupType.string
             );
             if (user) {
-              console.log(user);
-              console.log(userScores);
+              //console.log(user);
+              //console.log(userScores);
               if (tracking[msg.guild.id][msg.channel.id][name]) {
                 msg.channel.createMessage(
                   "This user is already being tracked!"
@@ -332,22 +332,22 @@ let queryApi = async function() {
           5,
           nodesu.LookupType.string
         );
-        console.log("dat", name, data);
+        //console.log("dat", name, data);
         let newMapSet = [];
         if (!tracking[guild][channel][user].latest[0]) {
           newMapSet = data;
         } else {
-          console.log("f");
+          //console.log("f");
           for (map in data) {
             let ts = data[map].date;
             let ots = tracking[guild][channel][user].latest[0].date;
-            console.log("stamp", ts, ots);
+            //console.log("stamp", ts, ots);
             if (new Date(ts).getTime() > new Date(ots).getTime()) {
               newMapSet.push(data[map]);
             }
           }
         }
-        console.log("nms", newMapSet);
+        //console.log("nms", newMapSet);
         for (nm in newMapSet) {
           pushLatest(guild, channel, newMapSet[nm], user);
         }
@@ -363,7 +363,7 @@ let queryApi = async function() {
   );
 };
 async function pushLatest(gid, cid, score, usern) {
-  console.log("\n\n\n\n\n");
+  //console.log("\n\n\n\n\n");
   let user = await osuapi.user.get(
     usern,
     nodesu.Mode.all,
@@ -372,7 +372,7 @@ async function pushLatest(gid, cid, score, usern) {
   );
   let mapL = await osuapi.beatmaps.getByBeatmapId(score.beatmap_id);
   let map = mapL[0];
-  console.log(user, usern);
+  //console.log(user, usern);
   if (!map) {
     global.janebot.bot.guilds
       .get(gid)
@@ -385,6 +385,7 @@ async function pushLatest(gid, cid, score, usern) {
       );
     return;
   }
+  let type = "";
   global.janebot.bot.guilds
     .get(gid)
     .channels.get(cid)
@@ -402,76 +403,15 @@ async function pushLatest(gid, cid, score, usern) {
         })\n mapped by ${map.creator}\n${global.round(
           map.difficultyrating,
           0.01
-        )} stars`,
-        fields: [
-          {
-            name: "Rank",
-            value: `#${user.pp_rank}`,
-            inline: true
-          },
-          {
-            name: "Country Rank",
-            value: `#${user.pp_country_rank}`,
-            inline: true
-          },
-          {
-            name: "PP",
-            value: user.pp_raw,
-            inline: true
-          },
-          {
-            name: "Level",
-            value: `${global.round(user.level, 1)} (${global.round(
-              user.level - global.round(user.level, 1),
-              0.0001
-            ) * 100}%)`,
-            inline: true
-          },
-          {
-            name: "Score",
-            value: score.score,
-            inline: true
-          },
-          {
-            name: "Max Combo",
-            value: `${score.maxcombo} of ${map.max_combo}`,
-            inline: true
-          },
-          {
-            name: "300s Hit",
-            value: score.count300,
-            inline: true
-          },
-          {
-            name: "Misses",
-            value: score.countmiss,
-            inline: true
-          },
-          {
-            name: "Mods",
-            value: score.enabled_mods,
-            inline: true
-          },
-          {
-            name: "Rank",
-            value: score.rank,
-            inline: true
-          }
-        ]
+        )} stars`
       }
     });
 }
-function standardAcc(
-  count300,
-  count100,
-  count50,
-  countmiss,
-  countkatu,
-  countgeki
-) {
+function standardAcc(count300, count100, count50, countmiss) {
   let accN = 50 * count50 + 100 * count100 + 300 * count300;
   let accD = (countmiss + count50 + count100 + count300) * 300;
   let finalAcc = accN / accD * 100;
+  return finalAcc;
 }
 let func = async function(m, e, u) {
   if (m.bot) return;
