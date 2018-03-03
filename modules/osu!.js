@@ -400,10 +400,21 @@ async function pushLatest(gid, cid, score, usern) {
         map.version
       }]](https://osu.ppy.sh/beatmapsets/${map.beatmapset_id}/#osu/${
         map.beatmap_id
-      })\n mapped by ${map.creator}\n${global.round(
+      })
+       mapped by ${map.creator}
+       ${global.round(
         map.difficultyrating,
         0.01
-      )} stars`
+      )} stars
+      mods: []
+      accuracy: ${
+        determineAcc("standard",
+          [score.count300,
+          score.count100,
+          score.count50,
+          score.countmiss]
+        )
+      }`
     }
   });
   if (score.count300 && score.count100 && score.count50 && score.countmiss) {
@@ -419,13 +430,22 @@ async function pushLatest(gid, cid, score, usern) {
     );
   }
 }
+function determineAcc(type, scoreArr) {
+  switch(type) {
+    case "standard": return standardAcc(scoreArr[0],scoreArr[1],scoreArr[2],scoreArr[3]);
+    case "ctb":
+    case "mania":
+    case "taiko":
+    default: return 0;
+  }
+}
 function standardAcc(count300, count100, count50, countmiss) {
   //console.log("cm",countmiss,"c5",count50,50*count50,"c1",count100,100*count100,"c3",count300,300*count300,"ct",(countmiss + count50 + count100 + count300),((countmiss + count50 + count100 + count300)*300))
   let accN = ((50 * parseInt(count50)) + (100 * parseInt(count100)) + (300 * parseInt(count300)));
   let accD = ((parseInt(countmiss) + parseInt(count50) + parseInt(count100) + parseInt(count300))*300);
   let finalAcc = (accN / accD) * 100;
   //console.log("acd",accD,"acn",accN,"fac",finalAcc);
-  return finalAcc;
+  return (Math.round(finalAcc * 100) / 100);
 }
 let func = async function(m, e, u) {
   if (m.bot) return;
