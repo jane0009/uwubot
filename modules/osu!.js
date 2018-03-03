@@ -339,7 +339,7 @@ let queryApi = async function() {
           for (map in data) {
             let ts = data[map].raw_date;
             let ots = tracking[guild][channel][user].latest[0].raw_date;
-            console.log("stamp", ts, ots);
+            //console.log("stamp", ts, ots);
             if (new Date(ts).getTime() > new Date(ots).getTime()) {
               newMapSet.push(data[map]);
             }
@@ -374,7 +374,7 @@ async function pushLatest(gid, cid, score, usern) {
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
   //console.log(user, usern);
-  console.log("new score " + usern + " " + score.id, map);
+  //console.log("new score " + usern + " " + score.id, map);
   if (!map) {
     global.janebot.bot.guilds
       .get(gid)
@@ -387,6 +387,9 @@ async function pushLatest(gid, cid, score, usern) {
       );
     return;
   }
+  var date = new Date(null);
+  date.setSeconds(map.time.total); // specify value for SECONDS here
+  var result = date.toISOString().substr(11, 8);
   let chan = global.janebot.bot.guilds.get(gid).channels.get(cid);
   chan.createMessage({
     embed: {
@@ -401,7 +404,8 @@ async function pushLatest(gid, cid, score, usern) {
        mapped by ${map.creator}
        ${global.round(map.difficulty.rating, 0.01)} stars
       mods: [${score.mods}]
-      accuracy: ${determineAcc(map.mode, score.counts)}`
+      accuracy: ${determineAcc(map.mode, score.counts)}
+      length: ${result} (${map.bpm}bpm)`
     }
   });
   if (
