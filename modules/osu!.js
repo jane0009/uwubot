@@ -386,28 +386,26 @@ async function pushLatest(gid, cid, score, usern) {
     return;
   }
   let type = "";
-  global.janebot.bot.guilds
-    .get(gid)
-    .channels.get(cid)
-    .createMessage({
-      embed: {
-        title: `new! for user ${user.username} (userid: ${user.user_id})`,
-        thumbnail: {
-          url: `https://b.ppy.sh/thumb/${map.beatmapset_id}.jpg`
-        },
-        color: 16738740,
-        description: `[${map.title} by ${map.artist} [${
-          map.version
-        }]](https://osu.ppy.sh/beatmapsets/${map.beatmapset_id}/#osu/${
-          map.beatmap_id
-        })\n mapped by ${map.creator}\n${global.round(
-          map.difficultyrating,
-          0.01
-        )} stars`
-      }
-    });
+  let chan = global.janebot.bot.guilds.get(gid).channels.get(cid);
+  chan.createMessage({
+    embed: {
+      title: `new! for user ${user.username} (userid: ${user.user_id})`,
+      thumbnail: {
+        url: `https://b.ppy.sh/thumb/${map.beatmapset_id}.jpg`
+      },
+      color: 16738740,
+      description: `[${map.title} by ${map.artist} [${
+        map.version
+      }]](https://osu.ppy.sh/beatmapsets/${map.beatmapset_id}/#osu/${
+        map.beatmap_id
+      })\n mapped by ${map.creator}\n${global.round(
+        map.difficultyrating,
+        0.01
+      )} stars`
+    }
+  });
   if (score.count300 && score.count100 && score.count50 && score.countmiss) {
-    msg.channel.createMessage(
+    chan.createMessage(
       "PP: unknown ACC: " +
         standardAcc(
           score.count300,
