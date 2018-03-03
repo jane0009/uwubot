@@ -274,9 +274,18 @@ module.exports = {
               JSON.stringify(tracking)
             );
             break;
+          case "get":
+          case "list":
+            let tr = tracking[msg.guild.id][msg.channel.id];
+            let usrs = [];
+            for (let u in tr) {
+              usrs.push(u);
+            }
+            msg.channel.createMessage("```\nusrs\n```");
+            break;
           default:
             msg.channel.createMessage(
-              "```\nuse <track add to add a user\nuse <track remove to remove a user\n```"
+              "```\nuse <track add to add a user\nuse <track remove to remove a user\n<track [get|list] to list all tracked users\n```"
             );
         }
       }
