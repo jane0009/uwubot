@@ -434,16 +434,22 @@ async function pushLatest(gid, cid, score, usern) {
     b: score.beatmapId
   });
   //console.log(score);
-  scores = await osuapi.getScores({
-    b:score.beatmapId,
-    u: usern
-  });
-  scores.sort((a,b)=>{
-    let ad = new Date(a.date).getTime();
-    let bd = new Date(b.date).getTime();
-    return ad - bd;
-  })
-  console.log(scores);
+  try {
+    console.log(score.beatmapId, usern);
+    let scores = await osuapi.getScores({
+      b: score.beatmapId,
+      u: usern
+    });
+    scores.sort((a,b)=>{
+      let ad = new Date(a.date).getTime();
+      let bd = new Date(b.date).getTime();
+      return ad - bd;
+    })
+    console.log(scores);
+  }
+  catch (e) {
+    console.log(e);
+  }
   let map = mapL[0];
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
