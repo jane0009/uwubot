@@ -420,11 +420,11 @@ async function pushLatest(gid, cid, score, usern) {
   }
 }
 function standardAcc(count300, count100, count50, countmiss) {
-  console.log("cm",countmiss,"c5",count50,50*count50,"c1",count100,100*count100,"c3",count300,300*count300,"ct",(countmiss + count50 + count100 + count300),((countmiss + count50 + count100 + count300)*300))
-  let accN = ((50 * count50) + (100 * count100) + (300 * count300));
-  let accD = ((countmiss + count50 + count100 + count300)*300);
+  //console.log("cm",countmiss,"c5",count50,50*count50,"c1",count100,100*count100,"c3",count300,300*count300,"ct",(countmiss + count50 + count100 + count300),((countmiss + count50 + count100 + count300)*300))
+  let accN = ((50 * parseInt(count50)) + (100 * parseInt(count100)) + (300 * parseInt(count300)));
+  let accD = ((parseInt(countmiss) + parseInt(count50) + parseInt(count100) + parseInt(count300))*300);
   let finalAcc = (accN / accD) * 100;
-  console.log("acd",accD,"acn",accN,"fac",finalAcc);
+  //console.log("acd",accD,"acn",accN,"fac",finalAcc);
   return finalAcc;
 }
 let func = async function(m, e, u) {
