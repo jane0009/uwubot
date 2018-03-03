@@ -423,6 +423,7 @@ function standardAcc(count300, count100, count50, countmiss) {
   let accN = (50 * count50) + (100 * count100) + (300 * count300);
   let accD = (countmiss + count50 + count100 + count300) * 300;
   let finalAcc = (accN / accD) * 100;
+  console.log(accD,accN,finalAcc);
   return finalAcc;
 }
 let func = async function(m, e, u) {
