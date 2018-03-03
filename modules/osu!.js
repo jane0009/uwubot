@@ -330,7 +330,7 @@ let queryApi = async function() {
         } catch (e) {
           console.log(name, e);
         }
-        //console.log("dat", name, data);
+        console.log("dat", name, data);
         let newMapSet = [];
         if (!tracking[guild][channel][user].latest[0]) {
           newMapSet = data;
@@ -374,6 +374,7 @@ async function pushLatest(gid, cid, score, usern) {
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
   //console.log(user, usern);
+  console.log("new score " + usern + " " + score.id);
   if (!map) {
     global.janebot.bot.guilds
       .get(gid)
@@ -400,12 +401,7 @@ async function pushLatest(gid, cid, score, usern) {
        mapped by ${map.creator}
        ${global.round(map.difficulty.rating, 0.01)} stars
       mods: [${score.mods}]
-      accuracy: ${determineAcc(map.mode, [
-        score.counts["300"],
-        score.counts["100"],
-        score.counts["50"],
-        score.counts.miss
-      ])}`
+      accuracy: ${determineAcc(map.mode, score.counts)}`
     }
   });
   if (
@@ -429,10 +425,15 @@ async function pushLatest(gid, cid, score, usern) {
   }
 }
 
-function determineAcc(type, scoreArr) {
+function determineAcc(type, counts) {
   switch (type) {
     case "Standard":
-      return standardAcc(scoreArr[0], scoreArr[1], scoreArr[2], scoreArr[3]);
+      return standardAcc(
+        counts["300"],
+        counts["100"],
+        counts["50"],
+        counts["miss"]
+      );
     case "Ctb":
     case "Mania":
     case "Taiko":
