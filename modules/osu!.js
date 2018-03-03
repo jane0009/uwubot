@@ -328,7 +328,7 @@ let queryApi = async function() {
           5,
           nodesu.LookupType.string
         );
-        console.log(data);
+        console.log("dat", data);
         let newMapSet = [];
         if (!tracking[guild][channel][user].latest[0]) {
           newMapSet = data;
@@ -337,13 +337,13 @@ let queryApi = async function() {
           for (map in data) {
             let ts = data[map].date;
             let ots = tracking[guild][channel][user].latest[0].date;
-            console.log(ts, ots);
+            console.log("stamp", ts, ots);
             if (new Date(ts).getTime() > new Date(ots).getTime()) {
               newMapSet.push(data[map]);
             }
           }
         }
-        console.log(newMapSet);
+        console.log("nms", newMapSet);
         for (nm in newMapSet) {
           pushLatest(newMapSet[nm]);
         }
@@ -360,7 +360,7 @@ let queryApi = async function() {
 };
 function pushLatest(map) {
   console.log("\n\n\n\n\n");
-  console.log(map);
+  console.log("map", map);
   msg.channel.createMessage("debug.. " + map.beatmap_id + " sc " + map.score);
 }
 function standardAcc(
