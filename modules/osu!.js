@@ -315,11 +315,13 @@ let queryApi = async function() {
           for (map in data) {
             let ts = data[map].date;
             let ots = tracking[guild][channel][user].latest[0].date;
+            console.log(ts, ots);
             if (new Date(ts).getTime() > new Date(ots).getTime()) {
               newMapSet.push(data[map]);
             }
           }
         }
+        console.log(newMapSet);
         for (nm in newMapSet) {
           pushLatest(newMapSet[nm]);
         }
