@@ -420,6 +420,7 @@ async function pushLatest(gid, cid, score, usern) {
   }
 }
 function standardAcc(count300, count100, count50, countmiss) {
+  console.log(countmiss,count50,50*count50,count100,100*count100,count300,300*count300,(countmiss + count50 + count100 + count300),((countmiss + count50 + count100 + count300)*300))
   let accN = (50 * count50) + (100 * count100) + (300 * count300);
   let accD = (countmiss + count50 + count100 + count300) * 300;
   let finalAcc = (accN / accD) * 100;
