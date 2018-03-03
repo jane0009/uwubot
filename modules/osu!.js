@@ -409,7 +409,7 @@ async function pushLatest(gid, cid, score, usern) {
         0.01
       )} stars
       mods: [${
-        score.enabled_mods + " | " + nodesu.Mods[score.enabled_mods]
+        score.enabled_mods + " | " + determineMods(score.enabled_mods)
       }]
       accuracy: ${
         determineAcc("standard",
@@ -433,6 +433,20 @@ async function pushLatest(gid, cid, score, usern) {
         "%"
     );
   }
+}
+function determineMods(modsBW) {
+  let mods = [];
+  for(op in nodesu.Mods) {
+    if(nodesu.Mods.None !== nodesu.Mods[op]) {
+      if(modsBW & nodesu.Mods[op]) {
+        mods.push(op);
+      }
+    }
+  }
+  if(mods = []) {
+    mods.push("None");
+  }
+  return mods;
 }
 function determineAcc(type, scoreArr) {
   switch(type) {
