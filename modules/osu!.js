@@ -1,5 +1,4 @@
-import { writeFileSync } from "fs";
-
+let fs = require("fs");
 let nodesu = require("nodesu");
 let path = require("path");
 let osuapi = new nodesu.Client(global.janebot.keys.osu);
