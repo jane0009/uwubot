@@ -409,20 +409,20 @@ let queryApi = async function() {
 function getColor(rank) {
   switch(rank) {
     case "XH":
-    case "SH": return "#FFFFFF"
+    case "SH": return parseInt(0xFFFFFF, 10)
     break;
     case "SS":
-    case "S": return "#FEF337"
+    case "S": return parseInt(0xFEF337, 10)
     break;
-    case "A": return "#46E424"
+    case "A": return parseInt(0x46E424, 10)
     break;
-    case "B": return "#3B73FF"
+    case "B": return parseInt(0x3B73FF, 10)
     break;
-    case "C": return "#FF35F0"
+    case "C": return parseInt(0xFF35F0, 10)
     break;
     case "D":
     case "F":
-    default:  return "#F33836"
+    default:  return parseInt(0xF33836, 10)
   }
 }
 async function pushLatest(gid, cid, score, usern) {
