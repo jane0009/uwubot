@@ -5,13 +5,42 @@ let path = require("path");
 let osuapi = new node_osu.Api(global.janebot.keys.osu);
 let listening = {};
 let tracking = {};
+let set = {};
 let dataFolder = path.join("/home/jane/uwubot", "data");
 let cfg = require(path.join(dataFolder, "osutracking.json"));
-tracking = cfg;
+if(cfg.set) {
+  tracking = cfg.track;
+  set = cfg.set;
+}
+else {
+  tracking = cfg;
+  set = {};
+}
 module.exports = {
   disabled: false,
   name: "osu!",
   commands: {
+    set: {
+      desc: "set osu! tracked user",
+      perm: "all",
+      func: async function(msg,args,data) {
+        let c = args.split(" ");
+        switch(c[0]) {
+          case "add":
+          set[msg.author.id] = c[1];
+          break;
+          case "remove":
+          delete set[msg.author.id];
+          break;
+          default:
+          msg.channel.createMessage("usage:\n```\n<set add [name]\n<set remove\n```")
+        }
+        fs.writeFileSync(
+          path.join(dataFolder, "osutracking.json"),
+          JSON.stringify({track:tracking,set:set})
+        );
+      }
+    },
     recent: {
       desc: "gets last X plays for a user",
       perm: "all",
@@ -20,12 +49,18 @@ module.exports = {
         let name = c[0];
         let cnum = parseInt(c[1]) ? parseInt(c[1]) : 5;
         let isStats = false;
-        if (c[1] == "stats") {
+        if (c[0] == "stats") {
           isStats = true;
+          name = c[1];
         }
         if (!name || cnum == undefined) {
-          msg.channel.createMessage("not enough parameters...");
-          return;
+          if(set[msg.author.id]) {
+            name = set[msg.author.id];
+          }
+          else {
+            msg.channel.createMessage("not enough parameters...");
+            return;
+          }
         }
         let user = await osuapi.getUser({
           u: name
@@ -256,7 +291,7 @@ module.exports = {
               msg.channel.createMessage("Now tracking " + name);
               fs.writeFileSync(
                 path.join(dataFolder, "osutracking.json"),
-                JSON.stringify(tracking)
+                JSON.stringify({track:tracking,set:set})
               );
             } else {
               msg.channel.createMessage(
@@ -269,7 +304,7 @@ module.exports = {
             delete tracking[msg.guild.id][msg.channel.id][name];
             fs.writeFileSync(
               path.join(dataFolder, "osutracking.json"),
-              JSON.stringify(tracking)
+              JSON.stringify({track:tracking,set:set})
             );
             break;
           case "get":
@@ -359,7 +394,7 @@ let queryApi = async function() {
   }
   fs.writeFileSync(
     path.join(dataFolder, "osutracking.json"),
-    JSON.stringify(tracking)
+    JSON.stringify({track:tracking,set:set})
   );
 };
 async function pushLatest(gid, cid, score, usern) {
