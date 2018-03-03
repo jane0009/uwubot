@@ -370,6 +370,7 @@ async function pushLatest(gid, cid, score, usern) {
   let mapL = await osuapi.getBeatmaps({
     b: score.beatmapId
   });
+  console.log(score);
   let map = mapL[0];
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
