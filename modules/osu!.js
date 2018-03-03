@@ -345,7 +345,9 @@ let queryApi = async function() {
         for (nm in newMapSet) {
           pushLatest(newMapSet[nm]);
         }
-        tracking[guild][channel][user].latest = newMapSet;
+        if (newMapSet && newMapSet[0]) {
+          tracking[guild][channel][user].latest = newMapSet;
+        }
       }
     }
   }
