@@ -281,7 +281,7 @@ module.exports = {
             for (let u in tr) {
               usrs.push(u);
             }
-            msg.channel.createMessage("```\nusrs\n```");
+            msg.channel.createMessage("```\n" + usrs + "\n```");
             break;
           default:
             msg.channel.createMessage(
