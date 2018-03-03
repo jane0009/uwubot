@@ -257,6 +257,10 @@ module.exports = {
               tracking[msg.guild.id][msg.channel.id][name].user = user;
               tracking[msg.guild.id][msg.channel.id][name].latest = userScores;
               msg.channel.createMessage("Now tracking " + name);
+              fs.writeFileSync(
+                path.join(dataFolder, "osutracking.json"),
+                JSON.stringify(tracking)
+              );
             } else {
               msg.channel.createMessage(
                 "A user named " + name + " does not exist."
@@ -266,6 +270,10 @@ module.exports = {
           case "remove":
             msg.channel.createMessage("Removing tracking for " + name);
             delete tracking[msg.guild.id][msg.channel.id][name];
+            fs.writeFileSync(
+              path.join(dataFolder, "osutracking.json"),
+              JSON.stringify(tracking)
+            );
             break;
           default:
             msg.channel.createMessage(
@@ -333,11 +341,10 @@ let queryApi = async function() {
       }
     }
   }
-  fs,
-    writeFileSync(
-      path.join(dataFolder, "osutracking.json"),
-      JSON.stringify(tracking)
-    );
+  fs.writeFileSync(
+    path.join(dataFolder, "osutracking.json"),
+    JSON.stringify(tracking)
+  );
 };
 function pushLatest(map) {
   console.log("\n\n\n\n\n");
