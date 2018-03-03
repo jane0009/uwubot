@@ -406,6 +406,18 @@ async function pushLatest(gid, cid, score, usern) {
         )} stars`
       }
     });
+  if (score.count300 && score.count100 && score.count50 && score.countmiss) {
+    msg.channel.createMessage(
+      "PP: unknown ACC: " +
+        standardAcc(
+          score.count300,
+          score.count100,
+          score.count50,
+          score.countmiss
+        ) +
+        "%"
+    );
+  }
 }
 function standardAcc(count300, count100, count50, countmiss) {
   let accN = 50 * count50 + 100 * count100 + 300 * count300;
