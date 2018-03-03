@@ -43,26 +43,26 @@ module.exports = {
         if (!userScores[0]) {
           msg.channel.createMessage({
             embed: {
-              title: `${user.username} (userid: ${user.user_id})`,
+              title: `${user.name} (userid: ${user.id})`,
               thumbnail: {
-                url: `https://a.ppy.sh/${user.user_id}`
+                url: `https://a.ppy.sh/${user.id}`
               },
               color: 16738740,
               //description: `${isStats ? "" : "**could not find recent scores for this user**"}`,
               fields: [
                 {
                   name: "Rank",
-                  value: `#${user.pp_rank}`,
+                  value: `#${user.pp.rank}`,
                   inline: true
                 },
                 {
                   name: "Country Rank",
-                  value: `#${user.pp_country_rank}`,
+                  value: `#${user.pp.countryRank}`,
                   inline: true
                 },
                 {
                   name: "PP",
-                  value: user.pp_raw,
+                  value: user.pp.raw,
                   inline: true
                 },
                 {
@@ -75,37 +75,37 @@ module.exports = {
                 },
                 {
                   name: "Total Plays",
-                  value: user.playcount,
+                  value: user.counts.plays,
                   inline: true
                 },
                 {
                   name: "Accuracy",
-                  value: `${global.round(user.accuracy)}%`,
+                  value: `${user.accuracyFormatted}`,
                   inline: true
                 },
                 {
                   name: "Ranked Score",
-                  value: user.ranked_score,
+                  value: user.scores.ranked,
                   inline: true
                 },
                 {
                   name: "Total Score",
-                  value: user.total_score,
+                  value: user.scores.total,
                   inline: true
                 },
                 {
                   name: "Maps with 'SS'",
-                  value: user.count_rank_ss,
+                  value: user.counts.SS,
                   inline: true
                 },
                 {
                   name: "Maps with 'S'",
-                  value: user.count_rank_s,
+                  value: user.counts.S,
                   inline: true
                 },
                 {
                   name: "Maps with 'A'",
-                  value: user.count_rank_a,
+                  value: user.counts.A,
                   inline: true
                 },
                 isStats
@@ -130,7 +130,7 @@ module.exports = {
         let map = mapL[0];
         let m = await msg.channel.createMessage({
           embed: {
-            title: `${user.username} (userid: ${user.user_id})`,
+            title: `${user.name} (userid: ${user.id})`,
             thumbnail: {
               url: `https://b.ppy.sh/thumb/${map.beatmapSetId}.jpg`
             },
@@ -142,23 +142,23 @@ module.exports = {
             }]](https://osu.ppy.sh/beatmapsets/${map.beatmapSetId}/#osu/${
               map.id
             })\n mapped by ${map.creator}\n${global.round(
-              map.difficultyrating,
+              map.difficulty.rating,
               0.01
             )} stars\n(${num + 1} of ${scores.length})`,
             fields: [
               {
                 name: "Rank",
-                value: `#${user.pp_rank}`,
+                value: `#${user.pp.rank}`,
                 inline: true
               },
               {
                 name: "Country Rank",
-                value: `#${user.pp_country_rank}`,
+                value: `#${user.pp.countryRank}`,
                 inline: true
               },
               {
                 name: "PP",
-                value: user.pp_raw,
+                value: user.pp.raw,
                 inline: true
               },
               {
@@ -176,22 +176,22 @@ module.exports = {
               },
               {
                 name: "Max Combo",
-                value: `${scores[num].maxcombo} of ${map.max_combo}`,
+                value: `${scores[num].maxCombo} of ${map.maxCombo}`,
                 inline: true
               },
               {
                 name: "300s Hit",
-                value: scores[num].count300,
+                value: scores[num].counts['300'],
                 inline: true
               },
               {
                 name: "Misses",
-                value: scores[num].countmiss,
+                value: scores[num].counts.miss,
                 inline: true
               },
               {
                 name: "Mods",
-                value: scores[num].enabled_mods,
+                value: scores[num].mods,
                 inline: true
               },
               {
@@ -243,9 +243,9 @@ module.exports = {
               }
               tracking[msg.guild.id][msg.channel.id][name] = {};
               tracking[msg.guild.id][msg.channel.id][name].user = {
-                user_id: user.user_id,
-                username: user.username,
-                total_score: user.total_score
+                id: user.id,
+                username: user.name,
+                scores.total: user.scores.total
               };
               tracking[msg.guild.id][msg.channel.id][name].latest = userScores;
               msg.channel.createMessage("Now tracking " + name);
@@ -314,7 +314,7 @@ let queryApi = async function() {
   for (guild in tracking) {
     for (channel in tracking[guild]) {
       for (user in tracking[guild][channel]) {
-        let name = tracking[guild][channel][user].user.username;
+        let name = tracking[guild][channel][user].user.name;
         let data = await osuapi.getUserRecent(
           {u: name, limit: cnum}
           );
@@ -357,7 +357,7 @@ async function pushLatest(gid, cid, score, usern) {
   );
   let mapL = await osuapi.getBeatmaps({b:scores[num].id});
   let map = mapL[0];
-  /*let scores = await osuapi.scores.get(score.id, score.enabled_mods, 1, usern, nodesu.LookupType.string);
+  /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
   console.log(scores);*/
   //console.log(user, usern);
   if (!map) {
@@ -375,7 +375,7 @@ async function pushLatest(gid, cid, score, usern) {
   let chan = global.janebot.bot.guilds.get(gid).channels.get(cid);
   chan.createMessage({
     embed: {
-      title: `new! for user ${user.username} (userid: ${user.user_id})`,
+      title: `new! for user ${user.name} (userid: ${user.id})`,
       thumbnail: {
         url: `https://b.ppy.sh/thumb/${map.beatmapSetId}.jpg`
       },
@@ -387,48 +387,34 @@ async function pushLatest(gid, cid, score, usern) {
       })
        mapped by ${map.creator}
        ${global.round(
-        map.difficultyrating,
+        map.difficulty.rating,
         0.01
       )} stars
       mods: [${
-        score.enabled_mods + " | " + determineMods(score.enabled_mods)
+        score.mods
       }]
       accuracy: ${
         determineAcc(map.mode,
-          [score.count300,
-          score.count100,
-          score.count50,
-          score.countmiss]
+          [score.counts['300'],
+          score.counts['100'],
+          score.counts['50'],
+          score.counts.miss]
         )
       }`
     }
   });
-  if (score.count300 && score.count100 && score.count50 && score.countmiss) {
+  if (score.counts['300'] && score.counts['100'] && score.counts['50'] && score.counts.miss) {
     chan.createMessage(
       "PP: " + score.pp + " ACC: " +
         standardAcc(
-          score.count300,
-          score.count100,
-          score.count50,
-          score.countmiss
+          score.counts['300'],
+          score.counts['100'],
+          score.counts['50'],
+          score.counts.miss
         ) +
         "%"
     );
   }
-}
-function determineMods(modsBW) {
-  let mods = [];
-  for(op in nodesu.Mods) {
-    if(nodesu.Mods.None !== nodesu.Mods[op]) {
-      if(modsBW & nodesu.Mods[op]) {
-        mods.push(op);
-      }
-    }
-  }
-  if(mods = []) {
-    mods.push("None");
-  }
-  return mods;
 }
 function determineAcc(type, scoreArr) {
   switch(type) {
@@ -481,7 +467,7 @@ let func = async function(m, e, u) {
       let map = mapL[0];
       m.edit({
         embed: {
-          title: `${user.username} (userid: ${user.user_id})`,
+          title: `${user.name} (userid: ${user.id})`,
           thumbnail: {
             url: `https://b.ppy.sh/thumb/${map.beatmapSetId}.jpg`
           },
@@ -491,23 +477,23 @@ let func = async function(m, e, u) {
           }]](https://osu.ppy.sh/beatmapsets/${map.beatmapSetId}/#osu/${
             map.id
           })\n mapped by ${map.creator}\n${global.round(
-            map.difficultyrating,
+            map.difficulty.rating,
             0.01
           )} stars\n(${num + 1} of ${scores.length})`,
           fields: [
             {
               name: "Rank",
-              value: `#${user.pp_rank}`,
+              value: `#${user.pp.rank}`,
               inline: true
             },
             {
               name: "Country Rank",
-              value: `#${user.pp_country_rank}`,
+              value: `#${user.pp.countryRank}`,
               inline: true
             },
             {
               name: "PP",
-              value: user.pp_raw,
+              value: user.pp.raw,
               inline: true
             },
             {
@@ -525,22 +511,22 @@ let func = async function(m, e, u) {
             },
             {
               name: "Max Combo",
-              value: `${scores[num].maxcombo} of ${map.max_combo}`,
+              value: `${scores[num].maxCombo} of ${map.maxCombo}`,
               inline: true
             },
             {
               name: "300s Hit",
-              value: scores[num].count300,
+              value: scores[num].counts['300'],
               inline: true
             },
             {
               name: "Misses",
-              value: scores[num].countmiss,
+              value: scores[num].counts.miss,
               inline: true
             },
             {
               name: "Mods",
-              value: scores[num].enabled_mods,
+              value: scores[num].mods,
               inline: true
             },
             {
