@@ -319,8 +319,8 @@ let queryApi = async function() {
   for (guild in tracking) {
     for (channel in tracking[guild]) {
       for (user in tracking[guild][channel]) {
-        console.log(tracking[guild][channel]);
-        let name = tracking[guild][channel][user].user.name;
+        //console.log(tracking[guild][channel]);
+        let name = tracking[guild][channel][user].user.username;
         let data;
         try {
           data = await osuapi.getUserRecent({
@@ -330,7 +330,7 @@ let queryApi = async function() {
         } catch (e) {
           console.log(name, e);
         }
-        console.log("dat", name, data);
+        //console.log("dat", name, data);
         let newMapSet = [];
         if (!tracking[guild][channel][user].latest[0]) {
           newMapSet = data;
