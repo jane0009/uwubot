@@ -349,7 +349,7 @@ let queryApi = async function() {
         }
         console.log("nms", newMapSet);
         for (nm in newMapSet) {
-          pushLatest(newMapSet[nm]);
+          pushLatest(guild, channel, newMapSet[nm]);
         }
         if (newMapSet && newMapSet[0]) {
           tracking[guild][channel][user].latest = newMapSet;
@@ -362,10 +362,13 @@ let queryApi = async function() {
     JSON.stringify(tracking)
   );
 };
-function pushLatest(map) {
+function pushLatest(gid, cid, map) {
   console.log("\n\n\n\n\n");
   console.log("map", map);
-  msg.channel.createMessage("debug.. " + map.beatmap_id + " sc " + map.score);
+  global.janebot.bot.guilds
+    .get(gid)
+    .channels.get(cid)
+    .createMessage("debug.. " + map.beatmap_id + " sc " + map.score);
 }
 function standardAcc(
   count300,
