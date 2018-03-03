@@ -330,15 +330,15 @@ let queryApi = async function() {
         } catch (e) {
           console.log(name, e);
         }
-        console.log("dat", name, data);
+        //console.log("dat", name, data);
         let newMapSet = [];
         if (!tracking[guild][channel][user].latest[0]) {
           newMapSet = data;
         } else {
           //console.log("f");
           for (map in data) {
-            let ts = data[map].date;
-            let ots = tracking[guild][channel][user].latest[0].date;
+            let ts = data[map].raw_date;
+            let ots = tracking[guild][channel][user].latest[0].raw_date;
             //console.log("stamp", ts, ots);
             if (new Date(ts).getTime() > new Date(ots).getTime()) {
               newMapSet.push(data[map]);
@@ -374,7 +374,7 @@ async function pushLatest(gid, cid, score, usern) {
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
   //console.log(user, usern);
-  console.log("new score " + usern + " " + score.id);
+  console.log("new score " + usern + " " + score.id, map);
   if (!map) {
     global.janebot.bot.guilds
       .get(gid)
