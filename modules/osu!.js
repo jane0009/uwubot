@@ -362,13 +362,92 @@ let queryApi = async function() {
     JSON.stringify(tracking)
   );
 };
-function pushLatest(gid, cid, map) {
+function pushLatest(gid, cid, score, usern) {
   console.log("\n\n\n\n\n");
   console.log("map", map);
+  let user = await osuapi.user.get(
+    usern,
+    nodesu.Mode.all,
+    1,
+    nodesu.LookupType.string
+  );
+  let mapL = await osuapi.beatmaps.getByBeatmapId(score.beatmap_id);
+      let map = mapL[0];
   global.janebot.bot.guilds
     .get(gid)
     .channels.get(cid)
-    .createMessage("debug.. " + map.beatmap_id + " sc " + map.score);
+    .createMessage({
+        embed: {
+          title: `${user.username} (userid: ${user.user_id})`,
+          thumbnail: {
+            url: `https://b.ppy.sh/thumb/${map.beatmapset_id}.jpg`
+          },
+          color: 16738740,
+          description: `[${map.title} by ${map.artist} [${
+            map.version
+          }]](https://osu.ppy.sh/beatmapsets/${map.beatmapset_id}/#osu/${
+            map.beatmap_id
+          })\n mapped by ${map.creator}\n${global.round(
+            map.difficultyrating,
+            0.01
+          )} stars`,
+          fields: [
+            {
+              name: "Rank",
+              value: `#${user.pp_rank}`,
+              inline: true
+            },
+            {
+              name: "Country Rank",
+              value: `#${user.pp_country_rank}`,
+              inline: true
+            },
+            {
+              name: "PP",
+              value: user.pp_raw,
+              inline: true
+            },
+            {
+              name: "Level",
+              value: `${global.round(user.level, 1)} (${global.round(
+                user.level - global.round(user.level, 1),
+                0.0001
+              ) * 100}%)`,
+              inline: true
+            },
+            {
+              name: "Score",
+              value: score.score,
+              inline: true
+            },
+            {
+              name: "Max Combo",
+              value: `${score.maxcombo} of ${map.max_combo}`,
+              inline: true
+            },
+            {
+              name: "300s Hit",
+              value: score.count300,
+              inline: true
+            },
+            {
+              name: "Misses",
+              value: score.countmiss,
+              inline: true
+            },
+            {
+              name: "Mods",
+              value: score.enabled_mods,
+              inline: true
+            },
+            {
+              name: "Rank",
+              value: score.rank,
+              inline: true
+            }
+          ]
+        }
+      });
 }
 function standardAcc(
   count300,
