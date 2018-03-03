@@ -349,7 +349,9 @@ let queryApi = async function() {
         }
         //console.log("nms", newMapSet);
         for (nm in newMapSet) {
-          pushLatest(guild, channel, newMapSet[nm], user);
+          if(newMapSet[nm].rank != "F") {
+            pushLatest(guild, channel, newMapSet[nm], user);
+          }
         }
         if (newMapSet && newMapSet[0]) {
           tracking[guild][channel][user].latest = newMapSet;
@@ -418,9 +420,9 @@ async function pushLatest(gid, cid, score, usern) {
   }
 }
 function standardAcc(count300, count100, count50, countmiss) {
-  let accN = 50 * count50 + 100 * count100 + 300 * count300;
+  let accN = (50 * count50) + (100 * count100) + (300 * count300);
   let accD = (countmiss + count50 + count100 + count300) * 300;
-  let finalAcc = accN / accD * 100;
+  let finalAcc = (accN / accD) * 100;
   return finalAcc;
 }
 let func = async function(m, e, u) {
