@@ -319,7 +319,7 @@ let queryApi = async function() {
                     u: name,
                     limit: 5
                 });
-                //console.log("dat", name, data);
+                console.log("dat", name, data);
                 let newMapSet = [];
                 if (!tracking[guild][channel][user].latest[0]) {
                     newMapSet = data;
