@@ -349,7 +349,7 @@ let queryApi = async function() {
         }
         console.log("nms", newMapSet);
         for (nm in newMapSet) {
-          pushLatest(guild, channel, newMapSet[nm]);
+          pushLatest(guild, channel, newMapSet[nm], user);
         }
         if (newMapSet && newMapSet[0]) {
           tracking[guild][channel][user].latest = newMapSet;
