@@ -364,7 +364,6 @@ let queryApi = async function() {
 };
 async function pushLatest(gid, cid, score, usern) {
   console.log("\n\n\n\n\n");
-  console.log("map", map);
   let user = await osuapi.user.get(
     usern,
     nodesu.Mode.all,
