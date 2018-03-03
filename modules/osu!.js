@@ -374,8 +374,8 @@ async function pushLatest(gid, cid, score, usern) {
   );
   let mapL = await osuapi.beatmaps.getByBeatmapId(score.beatmap_id);
   let map = mapL[0];
-  let scores = await osuapi.scores.get(score.beatmap_id, score.enabled_mods, 1, usern, nodesu.LookupType.string);
-  console.log(scores);
+  /*let scores = await osuapi.scores.get(score.beatmap_id, score.enabled_mods, 1, usern, nodesu.LookupType.string);
+  console.log(scores);*/
   //console.log(user, usern);
   if (!map) {
     global.janebot.bot.guilds
@@ -423,7 +423,7 @@ async function pushLatest(gid, cid, score, usern) {
   });
   if (score.count300 && score.count100 && score.count50 && score.countmiss) {
     chan.createMessage(
-      "PP: " + scores[0].pp + " ACC: " +
+      "PP: " + score.pp + " ACC: " +
         standardAcc(
           score.count300,
           score.count100,
