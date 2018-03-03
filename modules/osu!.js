@@ -307,7 +307,7 @@ module.exports = {
   },
   timers: {
     example: {
-      disabled: true,
+      disabled: false,
       type: "interval",
       time: 60000,
       func: function() {
