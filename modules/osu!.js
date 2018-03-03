@@ -189,7 +189,7 @@ module.exports = {
                             },
                             {
                                 name: "Mods",
-                                value: "[" + sscores[num].mods + "]",
+                                value: "[" + scores[num].mods + "]",
                                 inline: true
                             },
                             {
