@@ -406,7 +406,9 @@ async function pushLatest(gid, cid, score, usern) {
         map.difficultyrating,
         0.01
       )} stars
-      mods: []
+      mods: [${
+        nodesu.Mods[score.enabled_mods]
+      }]
       accuracy: ${
         determineAcc("standard",
           [score.count300,
@@ -419,7 +421,7 @@ async function pushLatest(gid, cid, score, usern) {
   });
   if (score.count300 && score.count100 && score.count50 && score.countmiss) {
     chan.createMessage(
-      "PP: unknown ACC: " +
+      "PP: " + score.pp + " ACC: " +
         standardAcc(
           score.count300,
           score.count100,
