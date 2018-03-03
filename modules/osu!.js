@@ -479,7 +479,7 @@ async function pushLatest(gid, cid, score, usern) {
        ${map.mode} - ${global.round(map.difficulty.rating, 0.01)} stars
        length: ${result} (${map.bpm}bpm)
        accuracy: ${determineAcc(map.mode, score.counts)}
-       score: ${map.score} (${map.pp}pp)
+       score: ${score.score} (${score.pp}pp)
        mods: [${score.mods}]`
     }
   });
