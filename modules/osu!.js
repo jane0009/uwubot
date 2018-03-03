@@ -373,6 +373,18 @@ async function pushLatest(gid, cid, score, usern) {
   );
   let mapL = await osuapi.beatmaps.getByBeatmapId(score.beatmap_id);
   let map = mapL[0];
+  if (!map) {
+    global.janebot.bot.guilds
+      .get(gid)
+      .channels.get(cid)
+      .createMessage(
+        "there was a new map for " +
+          usern +
+          ", but it could not be queried via the API. The ID is " +
+          score.beatmap_id
+      );
+    return;
+  }
   global.janebot.bot.guilds
     .get(gid)
     .channels.get(cid)
