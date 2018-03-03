@@ -339,7 +339,7 @@ let queryApi = async function() {
           for (map in data) {
             let ts = data[map].raw_date;
             let ots = tracking[guild][channel][user].latest[0].raw_date;
-            //console.log("stamp", ts, ots);
+            console.log("stamp", ts, ots);
             if (new Date(ts).getTime() > new Date(ots).getTime()) {
               newMapSet.push(data[map]);
             }
@@ -365,7 +365,7 @@ let queryApi = async function() {
 async function pushLatest(gid, cid, score, usern) {
   //console.log("\n\n\n\n\n");
   let user = await osuapi.getUser({
-    u: name
+    u: usern
   });
   let mapL = await osuapi.getBeatmaps({
     b: score.beatmapId
