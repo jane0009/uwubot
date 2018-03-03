@@ -372,6 +372,7 @@ async function pushLatest(gid, cid, score, usern) {
   );
   let mapL = await osuapi.beatmaps.getByBeatmapId(score.beatmap_id);
   let map = mapL[0];
+  console.log(user, usern);
   if (!map) {
     global.janebot.bot.guilds
       .get(gid)
