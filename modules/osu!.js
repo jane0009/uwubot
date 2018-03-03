@@ -123,7 +123,7 @@ module.exports = {
                 let scores = userScores;
                 //let user = listening[m.id].user;
                 let num = 0;
-                console.log(scores[num]);
+                //console.log(scores[num]);
                 let mapL = await osuapi.getBeatmaps({
                     b: scores[num].beatmapId
                 });
@@ -470,7 +470,7 @@ let func = async function(m, e, u) {
             }
             let user = listening[m.id].user;
             let num = listening[m.id].currentMap;
-            console.log(scores[num]);
+            //console.log(scores[num]);
             let mapL = await osuapi.getBeatmaps({
                 b: scores[num].beatmapId
             });
