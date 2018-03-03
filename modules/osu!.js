@@ -325,7 +325,7 @@ let queryApi = async function() {
   for (guild in tracking) {
     for (channel in tracking[guild]) {
       for (user in tracking[guild][channel]) {
-        let name = tracking[guild][channel][user].name;
+        let name = tracking[guild][channel][user].user.username;
         let data = await osuapi.user.getRecent(
           name,
           nodesu.Mode.all,
