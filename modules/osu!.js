@@ -319,6 +319,7 @@ let queryApi = async function() {
   for (guild in tracking) {
     for (channel in tracking[guild]) {
       for (user in tracking[guild][channel]) {
+        console.log(tracking[guild][channel]);
         let name = tracking[guild][channel][user].user.name;
         let data;
         try {
