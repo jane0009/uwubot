@@ -456,6 +456,7 @@ async function pushLatest(gid, cid, score, usern) {
   });
   //console.log(score);
   let map = mapL[0];
+  console.log(score);
   let pp = ojsama.ppv2({
     stars: map.difficulty.rating,
     combo: score.maxCombo,
