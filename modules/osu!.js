@@ -459,8 +459,8 @@ async function pushLatest(gid, cid, score, usern) {
   console.log(score);
   let pp = ojsama.ppv2({
     stars: map.difficulty.rating,
-    combo: score.maxCombo,
-    nmiss: score.counts.miss,
+    combo: parseInt(score.maxCombo),
+    nmiss: parseInt(score.counts.miss),
     acc_percent: determineAcc(map.mode, score.counts, false)
   })
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
