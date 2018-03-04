@@ -8,11 +8,10 @@ let tracking = {};
 let set = {};
 let dataFolder = path.join("/home/jane/uwubot", "data");
 let cfg = require(path.join(dataFolder, "osutracking.json"));
-if(cfg.set) {
+if (cfg.set) {
   tracking = cfg.track;
   set = cfg.set;
-}
-else {
+} else {
   tracking = cfg;
   set = {};
 }
@@ -23,28 +22,31 @@ module.exports = {
     set: {
       desc: "set osu! tracked user",
       perm: "all",
-      func: async function(msg,args,data) {
+      func: async function(msg, args, data) {
         let c = args.split(" ");
-        switch(c[0]) {
+        switch (c[0]) {
           case "add":
-          if(set[msg.author.id]) {
-            msg.channel.createMessage("changed user from " + set[msg.author.id] + " to " + c[1])
-          }
-          else {
-            msg.channel.createMessage("set user to " + c[1])
-          }
-          set[msg.author.id] = c[1];
-          break;
+            if (set[msg.author.id]) {
+              msg.channel.createMessage(
+                "changed user from " + set[msg.author.id] + " to " + c[1]
+              );
+            } else {
+              msg.channel.createMessage("set user to " + c[1]);
+            }
+            set[msg.author.id] = c[1];
+            break;
           case "remove":
-          delete set[msg.author.id];
-          msg.channel.createMessage("removed your current osu! user.")
-          break;
+            delete set[msg.author.id];
+            msg.channel.createMessage("removed your current osu! user.");
+            break;
           default:
-          msg.channel.createMessage("usage:\n```\n<set add [name]\n<set remove\n```")
+            msg.channel.createMessage(
+              "usage:\n```\n<set add [name]\n<set remove\n```"
+            );
         }
         fs.writeFileSync(
           path.join(dataFolder, "osutracking.json"),
-          JSON.stringify({track:tracking,set:set})
+          JSON.stringify({ track: tracking, set: set })
         );
       }
     },
@@ -54,17 +56,18 @@ module.exports = {
       func: async function(msg, args, data) {
         let c = args.split(" ");
         let name = c[0];
-        let cnum = parseInt(c[1]) ? parseInt(c[1]) : parseInt(c[0]) ? parseInt(c[0]) : 5;
+        let cnum = parseInt(c[1])
+          ? parseInt(c[1])
+          : parseInt(c[0]) ? parseInt(c[0]) : 5;
         let isStats = false;
         if (c[0] == "stats") {
           isStats = true;
           name = c[1];
         }
         if (!name || cnum == undefined) {
-          if(set[msg.author.id]) {
+          if (set[msg.author.id]) {
             name = set[msg.author.id];
-          }
-          else {
+          } else {
             msg.channel.createMessage("not enough parameters...");
             return;
           }
@@ -298,7 +301,7 @@ module.exports = {
               msg.channel.createMessage("Now tracking " + name);
               fs.writeFileSync(
                 path.join(dataFolder, "osutracking.json"),
-                JSON.stringify({track:tracking,set:set})
+                JSON.stringify({ track: tracking, set: set })
               );
             } else {
               msg.channel.createMessage(
@@ -311,7 +314,7 @@ module.exports = {
             delete tracking[msg.guild.id][msg.channel.id][name];
             fs.writeFileSync(
               path.join(dataFolder, "osutracking.json"),
-              JSON.stringify({track:tracking,set:set})
+              JSON.stringify({ track: tracking, set: set })
             );
             break;
           case "get":
@@ -394,10 +397,10 @@ let queryApi = async function() {
             }
           }
         }
-        console.log("nms", name, newMapSet);
+        //console.log("nms", name, newMapSet);
         for (nm in newMapSet) {
           if (newMapSet[nm].rank != "F") {
-            distance(guild, channel, newMapSet[nm], name)
+            distance(guild, channel, newMapSet[nm], name);
           }
         }
         if (newMapSet && newMapSet[0]) {
@@ -408,31 +411,39 @@ let queryApi = async function() {
   }
   fs.writeFileSync(
     path.join(dataFolder, "osutracking.json"),
-    JSON.stringify({track:tracking,set:set})
+    JSON.stringify({ track: tracking, set: set })
   );
 };
 function distance(guild, channel, ms, name) {
-  setTimeout(()=>{
+  setTimeout(() => {
     pushLatest(guild, channel, ms, name);
-  },30000);
+  }, 30000);
 }
 function getColor(rank) {
-  switch(rank) {
+  switch (rank) {
     case "XH":
-    case "SH": return parseInt(0xFFFFFF, 10)
-    break;
+    case "SH":
+      return parseInt(0xffffff, 10);
+      break;
     case "SS":
-    case "S": return parseInt(0xFEF337, 10)
-    break;
-    case "A": return parseInt(0x46E424, 10)
-    break;
-    case "B": return parseInt(0x3B73FF, 10)
-    break;
-    case "C": return parseInt(0xFF35F0, 10)
-    break;
+    case "S":
+      return parseInt(0xfef337, 10);
+      break;
+    case "A":
+      return parseInt(0x46e424, 10);
+      break;
+    case "B":
+      return parseInt(0x3b73ff, 10);
+      break;
+    case "C":
+      return parseInt(0xff35f0, 10);
+      break;
     case "D":
     case "F":
-    default:  return parseInt(0xF33836, 10)
+      return parseInt(0xf33836, 10);
+      break;
+    default:
+      return parseInt(0xf33836, 10);
   }
 }
 async function pushLatest(gid, cid, score, usern) {
@@ -450,14 +461,13 @@ async function pushLatest(gid, cid, score, usern) {
       b: score.beatmapId,
       u: usern
     });
-    scores.sort((a,b)=>{
+    scores.sort((a, b) => {
       let ad = new Date(a.date).getTime();
       let bd = new Date(b.date).getTime();
       return ad - bd;
-    })
+    });
     console.log(scores);
-  }
-  catch (e) {
+  } catch (e) {
     console.log(e);
   }
   let map = mapL[0];
@@ -494,7 +504,7 @@ async function pushLatest(gid, cid, score, usern) {
        mapped by ${map.creator}
        ${map.mode} - ${global.round(map.difficulty.rating, 0.01)} stars
        length: ${result} (${map.bpm}bpm)
-       accuracy: ${determineAcc(map.mode, score.counts)}
+       accuracy: ${determineAcc(map.mode, score.counts)} (${score.rank})
        score: ${score.score} (${score.pp}pp)
        mods: [${score.mods}]`
     }
