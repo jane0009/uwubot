@@ -10,11 +10,11 @@ let map_data = {};
 let dataFolder = path.join("/home/jane/uwubot", "data");
 let cfg = require(path.join(dataFolder, "osutracking.json"));
 if (cfg.set) {
-  tracking = cfg.track;
-  set = cfg.set;
-  map_data = cfg.mapdata;
+  tracking = cfg.track || {};
+  set = cfg.set || {};
+  map_data = cfg.mapdata || {};
 } else {
-  tracking = cfg;
+  tracking = cfg || {};
 }
 module.exports = {
   disabled: false,
