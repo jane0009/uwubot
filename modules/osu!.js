@@ -458,7 +458,7 @@ async function pushLatest(gid, cid, score, usern) {
   let map = mapL[0];
   console.log(score,map);
   let pp = ojsama.ppv2({
-    stars: map.difficulty.rating,
+    stars: parseFloat(map.difficulty.rating),
     combo: parseInt(score.maxCombo),
     nmiss: parseInt(score.counts.miss),
     acc_percent: determineAcc(map.mode, score.counts, false)
