@@ -455,7 +455,7 @@ async function pushLatest(gid, cid, score, usern) {
     b: score.beatmapId
   });
   //console.log(score);
-  let pp = osu.ppv2({
+  let pp = ojsama.ppv2({
     stars: map.difficulty.rating,
     combo: score.maxCombo,
     nmiss: score.counts.miss,
