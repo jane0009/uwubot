@@ -6,14 +6,15 @@ let osuapi = new node_osu.Api(global.janebot.keys.osu);
 let listening = {};
 let tracking = {};
 let set = {};
+let map_data = {};
 let dataFolder = path.join("/home/jane/uwubot", "data");
 let cfg = require(path.join(dataFolder, "osutracking.json"));
 if (cfg.set) {
   tracking = cfg.track;
   set = cfg.set;
+  map_data = cfg.mapdata;
 } else {
   tracking = cfg;
-  set = {};
 }
 module.exports = {
   disabled: false,
@@ -46,7 +47,7 @@ module.exports = {
         }
         fs.writeFileSync(
           path.join(dataFolder, "osutracking.json"),
-          JSON.stringify({ track: tracking, set: set })
+          JSON.stringify({ track: tracking, set: set, mapdata: map_data })
         );
       }
     },
@@ -301,7 +302,7 @@ module.exports = {
               msg.channel.createMessage("Now tracking " + name);
               fs.writeFileSync(
                 path.join(dataFolder, "osutracking.json"),
-                JSON.stringify({ track: tracking, set: set })
+                JSON.stringify({ track: tracking, set: set, mapdata: map_data })
               );
             } else {
               msg.channel.createMessage(
@@ -314,7 +315,7 @@ module.exports = {
             delete tracking[msg.guild.id][msg.channel.id][name];
             fs.writeFileSync(
               path.join(dataFolder, "osutracking.json"),
-              JSON.stringify({ track: tracking, set: set })
+              JSON.stringify({ track: tracking, set: set, mapdata: map_data })
             );
             break;
           case "get":
@@ -380,7 +381,7 @@ let queryApi = async function() {
             limit: 5
           });
         } catch (e) {
-          console.log(name, e);
+          console.warn(name, e);
         }
         //console.log("dat", name, data);
         let newMapSet = [];
@@ -411,7 +412,7 @@ let queryApi = async function() {
   }
   fs.writeFileSync(
     path.join(dataFolder, "osutracking.json"),
-    JSON.stringify({ track: tracking, set: set })
+    JSON.stringify({ track: tracking, set: set, mapdata: map_data })
   );
 };
 function distance(guild, channel, ms, name) {
@@ -456,13 +457,41 @@ async function pushLatest(gid, cid, score, usern) {
   });
   //console.log(score);
   let map = mapL[0];
-  console.log(score,map);
-  let pp = ojsama.ppv2({
-    stars: parseFloat(map.difficulty.rating),
+  //console.log(score,map);
+  let mods = score.raw_mods;
+  let pp;
+  if(map.mode == "Standard") {
+  if(!map_data[score.beatmapId]) map_data[score.beatmapId] = {};
+  if(!map_data[score.beatmapId][mods]) {
+    let mdata;
+    let url = `https://osu.ppy.sh/osu/${score.beatmapId}`
+    let exec = require("child_process").exec;
+    exec(`curl ${url}`, (e, out, err) => {
+      if (e) {
+        console.error(e);
+      } else {
+        mdata = out;
+      }
+    })
+    let sdata = new ojsama.parser().feed(mdata);
+    let stars = new ojsama.diff().calc({map:sdata.map, mods: mods});
+    map_data[score.beatmapId][mods] = stars;
+  }
+  fs.writeFileSync(
+    path.join(dataFolder, "osutracking.json"),
+    JSON.stringify({ track: tracking, set: set, mapdata: map_data })
+  );
+  pp = ojsama.ppv2({
+    stars: map_data[score.beatmapId][mods],
     combo: parseInt(score.maxCombo),
     nmiss: parseInt(score.counts.miss),
-    acc_percent: determineAcc(map.mode, score.counts, false)
+    n300:parseInt(score.counts['300']),
+    n100:parseInt(score.counts['100']),
+    n50:parseInt(score.counts['50']),
+    acc_percent: determineAcc(map.mode, score.counts, false),
+    max_combo: parseInt(map.maxCombo)
   })
+}
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
   //console.log(user, usern);
