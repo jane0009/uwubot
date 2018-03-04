@@ -425,7 +425,7 @@ function getColor(rank) {
     case "SH":
       return parseInt(0xffffff, 10);
       break;
-    case "SS":
+    case "X":
     case "S":
       return parseInt(0xfef337, 10);
       break;
