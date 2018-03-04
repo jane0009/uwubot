@@ -455,21 +455,12 @@ async function pushLatest(gid, cid, score, usern) {
     b: score.beatmapId
   });
   //console.log(score);
-  try {
-    console.log(score.beatmapId, usern);
-    let scores = await osuapi.getScores({
-      b: score.beatmapId,
-      u: usern
-    });
-    scores.sort((a, b) => {
-      let ad = new Date(a.date).getTime();
-      let bd = new Date(b.date).getTime();
-      return ad - bd;
-    });
-    console.log(scores);
-  } catch (e) {
-    console.log(e);
-  }
+  let pp = osu.ppv2({
+    stars: map.difficulty.rating,
+    combo: score.maxCombo,
+    nmiss: score.counts.miss,
+    acc_percent: determineAcc(map.mode, score.counts, false)
+  })
   let map = mapL[0];
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
@@ -505,16 +496,21 @@ async function pushLatest(gid, cid, score, usern) {
        ${map.mode} - ${global.round(map.difficulty.rating, 0.01)} stars
        length: ${result} (${map.bpm}bpm)
        accuracy: ${determineAcc(map.mode, score.counts)} (${score.rank})
-       score: ${score.score} (${score.pp}pp)
+       score: ${score.score} (${score.pp || pp.toString()}pp)
        mods: [${score.mods}]`
     }
   });
 }
 
-function determineAcc(type, counts) {
+function determineAcc(type, counts, round = true) {
   switch (type) {
     case "Standard":
-      return standardAcc(
+      return round ? roundAcc(standardAcc(
+        counts["300"],
+        counts["100"],
+        counts["50"],
+        counts["miss"]
+      )) : standardAcc(
         counts["300"],
         counts["100"],
         counts["50"],
@@ -542,7 +538,10 @@ function standardAcc(count300, count100, count50, countmiss) {
     300;
   let finalAcc = accN / accD * 100;
   //console.log("acd",accD,"acn",accN,"fac",finalAcc);
-  return Math.round(finalAcc * 100) / 100;
+  return finalAcc
+}
+function roundAcc(acc) {
+  return Math.round(acc * 100) / 100;
 }
 let func = async function(m, e, u) {
   if (m.bot) return;
