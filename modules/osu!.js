@@ -1,5 +1,5 @@
 let fs = require("fs");
-let nodesu = require("nodesu");
+let ojsama = require('ojsama');
 let node_osu = require("node-osu");
 let path = require("path");
 let osuapi = new node_osu.Api(global.janebot.keys.osu);
@@ -493,7 +493,7 @@ async function pushLatest(gid, cid, score, usern) {
   let chan = global.janebot.bot.guilds.get(gid).channels.get(cid);
   chan.createMessage({
     embed: {
-      title: `new! for user ${user.name} (userid: ${user.id})`,
+      title: `new! for user ${user.name} in osu!${map.mode.toLowerCase()} (userid: ${user.id})`,
       thumbnail: {
         url: `https://b.ppy.sh/thumb/${map.beatmapSetId}.jpg`
       },
