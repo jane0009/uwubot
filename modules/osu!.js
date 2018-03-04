@@ -397,9 +397,7 @@ let queryApi = async function() {
         console.log("nms", name, newMapSet);
         for (nm in newMapSet) {
           if (newMapSet[nm].rank != "F") {
-            setTimeout(()=>{
-              pushLatest(guild, channel, newMapSet[nm], name);
-            },30000)
+            distance(guild, channel, newMapSet[nm], name)
           }
         }
         if (newMapSet && newMapSet[0]) {
@@ -413,6 +411,11 @@ let queryApi = async function() {
     JSON.stringify({track:tracking,set:set})
   );
 };
+function distance(guild, channel, ms, name) {
+  setTimeout(()=>{
+    pushLatest(guild, channel, ms, name);
+  },30000);
+}
 function getColor(rank) {
   switch(rank) {
     case "XH":
