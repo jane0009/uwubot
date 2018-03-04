@@ -354,6 +354,13 @@ module.exports = {
         queryApi();
       }
     }
+  },
+  aliases: {
+    osu: {
+      disabled: false,
+      command: "recent",
+      args: "stats"
+    }
   }
 };
 let queryApi = async function() {
@@ -387,11 +394,11 @@ let queryApi = async function() {
             }
           }
         }
-        //console.log("nms", newMapSet);
+        console.log("nms", name, newMapSet);
         for (nm in newMapSet) {
           if (newMapSet[nm].rank != "F") {
             setTimeout(()=>{
-              pushLatest(guild, channel, newMapSet[nm], user);
+              pushLatest(guild, channel, newMapSet[nm], name);
             },30000)
           }
         }
