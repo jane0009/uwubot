@@ -350,12 +350,19 @@ module.exports = {
     }
   },
   timers: {
-    example: {
+    queryapi: {
       disabled: false,
       type: "interval",
       time: 120000,
       func: function() {
         queryApi();
+      }
+    },
+    garbagecollect: {
+      type: "schedule",
+      time: "@daily",
+      func: function() {
+        gc();
       }
     }
   },
@@ -447,6 +454,14 @@ function getColor(rank) {
       return parseInt(0xf33836, 10);
   }
 }
+async function gc() {
+  for (map in map_data) {
+    if (map_data[map].date + 604800000 < new Date()) {
+      console.log("deleting map " + map);
+      delete map_data[map];
+    }
+  }
+}
 async function pushLatest(gid, cid, score, usern) {
   //console.log("\n\n\n\n\n");
   let user = await osuapi.getUser({
@@ -476,6 +491,11 @@ async function pushLatest(gid, cid, score, usern) {
           let sdata = new ojsama.parser().feed(mdata);
           stars = new ojsama.diff().calc({ map: sdata.map, mods: mods });
         }
+        if (stars) {
+          map_data[score.beatmapId].map = stars.map;
+          map_data[score.beatmapId].date = new Date().getTime();
+          stars.map = {};
+        }
         map_data[score.beatmapId][mods] = stars || {};
       });
       //console.log(mdata);
@@ -487,36 +507,38 @@ async function pushLatest(gid, cid, score, usern) {
     wrap(score, mods, map, gid, cid, user, usern);
   }
 }
-  function wrap(score, mods, map, gid, cid, user, usern) {
-    if (map_data[score.beatmapId][mods]) {
-      createEmbed(score, mods, map, gid, cid, user, usern);
-    } else {
-      console.log(
-        "waiting 30s before creating embed... [" +
-          score.beatmapId +
-          " " +
-          usern +
-          "]"
-      );
-      setTimeout(() => {
-        wrap(score, mods, map, gid, cid, user, usern);
-      }, 30000);
-    }
+function wrap(score, mods, map, gid, cid, user, usern) {
+  if (map_data[score.beatmapId][mods]) {
+    createEmbed(score, mods, map, gid, cid, user, usern);
+  } else {
+    console.log(
+      "waiting 30s before creating embed... [" +
+        score.beatmapId +
+        ", " +
+        usern +
+        "]"
+    );
+    setTimeout(() => {
+      wrap(score, mods, map, gid, cid, user, usern);
+    }, 30000);
   }
-  function createEmbed(score, mods, map, gid, cid, user, usern) {
-    let pp;
-    pp =
-      ojsama.ppv2({
-        stars: map_data[score.beatmapId][mods],
-        combo: parseInt(score.maxCombo),
-        nmiss: parseInt(score.counts.miss),
-        n300: parseInt(score.counts["300"]),
-        n100: parseInt(score.counts["100"]),
-        n50: parseInt(score.counts["50"]),
-        acc_percent: determineAcc(map.mode, score.counts, false),
-        max_combo: parseInt(map.maxCombo)
-      });
-  
+}
+function createEmbed(score, mods, map, gid, cid, user, usern) {
+  let pp;
+  let stars = map_data[score.beatmapId][mods];
+  stars.map = map_data[score.beatmapId].map;
+  map_data[score.beatmapId].date = new Date().getTime();
+  pp = ojsama.ppv2({
+    stars: stars,
+    combo: parseInt(score.maxCombo),
+    nmiss: parseInt(score.counts.miss),
+    n300: parseInt(score.counts["300"]),
+    n100: parseInt(score.counts["100"]),
+    n50: parseInt(score.counts["50"]),
+    acc_percent: determineAcc(map.mode, score.counts, false),
+    max_combo: parseInt(map.maxCombo)
+  });
+
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
   //console.log(user, usern);
@@ -553,7 +575,7 @@ async function pushLatest(gid, cid, score, usern) {
        ${map.mode} - ${global.round(map.difficulty.rating, 0.01)} stars
        length: ${result} (${map.bpm}bpm)
        accuracy: ${determineAcc(map.mode, score.counts)} (${score.rank})
-       score: ${score.score} (${pp.toString() || 0}pp)
+       score: ${score.score} ▸ ${pp.toString() || 0}
        mods: [${score.mods}]`
     }
   });
