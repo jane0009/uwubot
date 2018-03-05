@@ -1,5 +1,5 @@
 let fs = require("fs");
-let ojsama = require('ojsama');
+let ojsama = require("ojsama");
 let node_osu = require("node-osu");
 let path = require("path");
 let osuapi = new node_osu.Api(global.janebot.keys.osu);
@@ -459,55 +459,62 @@ async function pushLatest(gid, cid, score, usern) {
   let map = mapL[0];
   //console.log(score,map);
   let mods = score.raw_mods;
-  if(map.mode == "Standard") {
-  if(!map_data[score.beatmapId]) map_data[score.beatmapId] = {};
-  if(!map_data[score.beatmapId][mods]) {
-    let url = `https://osu.ppy.sh/osu/${score.beatmapId}`
-    let exec = require("child_process").exec;
-    let mdata;
-    await exec(`curl ${url}`, (e, out, err) => {
-      if (e) {
-        console.error(e);
-      }
-      //console.log(out);
+  if (map.mode == "Standard") {
+    if (!map_data[score.beatmapId]) map_data[score.beatmapId] = {};
+    if (!map_data[score.beatmapId][mods]) {
+      let url = `https://osu.ppy.sh/osu/${score.beatmapId}`;
+      let exec = require("child_process").exec;
+      let mdata;
+      await exec(`curl ${url}`, (e, out, err) => {
+        if (e) {
+          console.error(e);
+        }
+        //console.log(out);
         mdata = out;
         let stars;
-        if(mdata != undefined) {
+        if (mdata != undefined) {
           let sdata = new ojsama.parser().feed(mdata);
-          stars = new ojsama.diff().calc({map:sdata.map, mods: mods});
+          stars = new ojsama.diff().calc({ map: sdata.map, mods: mods });
         }
         map_data[score.beatmapId][mods] = stars || {};
-    })
-    //console.log(mdata);
+      });
+      //console.log(mdata);
+    }
+    fs.writeFileSync(
+      path.join(dataFolder, "osutracking.json"),
+      JSON.stringify({ track: tracking, set: set, mapdata: map_data })
+    );
+    wrap(score, mods, map, gid, cid, user, usern);
   }
-  fs.writeFileSync(
-    path.join(dataFolder, "osutracking.json"),
-    JSON.stringify({ track: tracking, set: set, mapdata: map_data })
-  );
-  wrap(score,mods,map,gid,cid,user,usern);
-}
-function wrap(score,mods,map,gid,cid,user,usern) {
-  if(map_data[score.beatmapId][mods]) {
-    createEmbed(score,map,gid,cid,user,usern);
+  function wrap(score, mods, map, gid, cid, user, usern) {
+    if (map_data[score.beatmapId][mods]) {
+      createEmbed(score, map, gid, cid, user, usern);
+    } else {
+      console.log(
+        "waiting 30s before creating embed... [" +
+          score.beatmapId +
+          " " +
+          usern +
+          "]"
+      );
+      setTimeout(() => {
+        wrap(score, mods, map, gid, cid, user, usern);
+      }, 30000);
+    }
   }
-  else {
-    setTimeout(()=>{
-      wrap(score,mods,map,gid,cid,user,usern);
-    },30000)
+  function createEmbed(score, map, gid, cid, user, usern) {
+    let pp =
+      ojsama.ppv2({
+        stars: map_data[score.beatmapId][mods],
+        combo: parseInt(score.maxCombo),
+        nmiss: parseInt(score.counts.miss),
+        n300: parseInt(score.counts["300"]),
+        n100: parseInt(score.counts["100"]),
+        n50: parseInt(score.counts["50"]),
+        acc_percent: determineAcc(map.mode, score.counts, false),
+        max_combo: parseInt(map.maxCombo)
+      }) || 0;
   }
-}
-function createEmbed(score, map, gid, cid, user, usern) {
-  let pp = ojsama.ppv2({
-    stars: map_data[score.beatmapId][mods],
-    combo: parseInt(score.maxCombo),
-    nmiss: parseInt(score.counts.miss),
-    n300:parseInt(score.counts['300']),
-    n100:parseInt(score.counts['100']),
-    n50:parseInt(score.counts['50']),
-    acc_percent: determineAcc(map.mode, score.counts, false),
-    max_combo: parseInt(map.maxCombo)
-  }) || 0;
-}
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
   //console.log(user, usern);
@@ -530,7 +537,9 @@ function createEmbed(score, map, gid, cid, user, usern) {
   let chan = global.janebot.bot.guilds.get(gid).channels.get(cid);
   chan.createMessage({
     embed: {
-      title: `new! for user ${user.name} in osu!${map.mode.toLowerCase()} (userid: ${user.id})`,
+      title: `new! for user ${
+        user.name
+      } in osu!${map.mode.toLowerCase()} (userid: ${user.id})`,
       thumbnail: {
         url: `https://b.ppy.sh/thumb/${map.beatmapSetId}.jpg`
       },
@@ -551,17 +560,21 @@ function createEmbed(score, map, gid, cid, user, usern) {
 function determineAcc(type, counts, round = true) {
   switch (type) {
     case "Standard":
-      return round ? roundAcc(standardAcc(
-        counts["300"],
-        counts["100"],
-        counts["50"],
-        counts["miss"]
-      )) : standardAcc(
-        counts["300"],
-        counts["100"],
-        counts["50"],
-        counts["miss"]
-      );
+      return round
+        ? roundAcc(
+            standardAcc(
+              counts["300"],
+              counts["100"],
+              counts["50"],
+              counts["miss"]
+            )
+          )
+        : standardAcc(
+            counts["300"],
+            counts["100"],
+            counts["50"],
+            counts["miss"]
+          );
     case "Ctb":
     case "Mania":
     case "Taiko":
@@ -584,7 +597,7 @@ function standardAcc(count300, count100, count50, countmiss) {
     300;
   let finalAcc = accN / accD * 100;
   //console.log("acd",accD,"acn",accN,"fac",finalAcc);
-  return finalAcc
+  return finalAcc;
 }
 function roundAcc(acc) {
   return Math.round(acc * 100) / 100;
