@@ -473,6 +473,7 @@ async function pushLatest(gid, cid, score, usern) {
         mdata = out;
       }
     })
+    console.log(mdata);
     let sdata = new ojsama.parser().feed(mdata);
     let stars = new ojsama.diff().calc({map:sdata.map, mods: mods});
     map_data[score.beatmapId][mods] = stars;
