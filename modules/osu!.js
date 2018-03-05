@@ -1,5 +1,3 @@
-import { setTimeout } from "timers";
-
 let fs = require("fs");
 let ojsama = require('ojsama');
 let node_osu = require("node-osu");
