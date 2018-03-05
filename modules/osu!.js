@@ -26,24 +26,24 @@ module.exports = {
       func: async function(msg, args, data) {
         let c = global.parseArgs(args);
         switch (c[0]) {
-          case "add":
-            if (set[msg.author.id]) {
-              msg.channel.createMessage(
-                "changed user from " + set[msg.author.id] + " to " + c[1]
-              );
-            } else {
-              msg.channel.createMessage("set user to " + c[1]);
-            }
-            set[msg.author.id] = c[1];
-            break;
           case "remove":
             delete set[msg.author.id];
             msg.channel.createMessage("removed your current osu! user.");
             break;
-          default:
+          case "help":
             msg.channel.createMessage(
-              "usage:\n```\n<set add [name]\n<set remove\n```"
+              "usage:\n```\n<set [name]\n<set remove\n```"
             );
+            break;
+            default: 
+            if (set[msg.author.id]) {
+              msg.channel.createMessage(
+                "changed user from " + set[msg.author.id] + " to " + c[0]
+              );
+            } else {
+              msg.channel.createMessage("set user to " + c[0]);
+            }
+            set[msg.author.id] = c[0];
         }
         fs.writeFileSync(
           path.join(dataFolder, "osutracking.json"),
