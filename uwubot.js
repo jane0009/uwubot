@@ -78,19 +78,22 @@ global.floor = function(num, dec = 0.0000001) {
   return Math.floor(num * mult) / mult;
 };
 
-global.parseArgs = function (str){
-  return str.match(/\\?.|^$/g).reduce((p, c) => {
-    if(c === '"'){
-      p.quote ^= 1;
-    }else if(!p.quote && c === ' '){
-      p.a.push('');
-    }else{
-      p.a[p.a.length-1] += c.replace(/\\(.)/,"$1");
-    }
+global.parseArgs = function(str) {
+  return str.match(/\\?.|^$/g).reduce(
+    (p, c) => {
+      if (c === '"') {
+        p.quote ^= 1;
+      } else if (!p.quote && c === " ") {
+        p.a.push("");
+      } else {
+        p.a[p.a.length - 1] += c.replace(/\\(.)/, "$1");
+      }
 
-    return p;
-  }, {a: ['']}).a
-}
+      return p;
+    },
+    { a: [""] }
+  ).a;
+};
 
 const configfile = JSON.parse(JSON.stringify(require("./config.json")));
 janebot.keys = {};

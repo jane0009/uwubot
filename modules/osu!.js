@@ -35,7 +35,7 @@ module.exports = {
               "usage:\n```\n<set [name]\n<set remove\n```"
             );
             break;
-            default: 
+          default:
             if (set[msg.author.id]) {
               msg.channel.createMessage(
                 "changed user from " + set[msg.author.id] + " to " + c[0]
@@ -84,13 +84,13 @@ module.exports = {
         let userScores;
         try {
           userScores = isStats
-          ? []
-          : await osuapi.getUserRecent({
-              u: name,
-              limit: cnum
-            });
+            ? []
+            : await osuapi.getUserRecent({
+                u: name,
+                limit: cnum
+              });
         } catch (e) {
-          if(global.debug) {
+          if (global.debug) {
             console.warn(name, e);
           }
         }
@@ -293,7 +293,7 @@ module.exports = {
                 limit: cnum
               });
             } catch (e) {
-              if(global.debug) {
+              if (global.debug) {
                 console.warn(name, e);
               }
             }
@@ -343,7 +343,7 @@ module.exports = {
             break;
           default:
             msg.channel.createMessage(
-              "```\nuse <track add to add a user\nuse <track remove to remove a user\n<track [get|list] to list all tracked users\n```"
+              "```\nuse <track add to add a user\nuse <track remove to remove a user\nuse <track [get|list] to list all tracked users\n```"
             );
         }
       }
@@ -389,7 +389,6 @@ module.exports = {
   }
 };
 let queryApi = async function() {
-  let newDat = tracking;
   for (guild in tracking) {
     for (channel in tracking[guild]) {
       for (user in tracking[guild][channel]) {
@@ -402,7 +401,7 @@ let queryApi = async function() {
             limit: 5
           });
         } catch (e) {
-          if(global.debug) {
+          if (global.debug) {
             console.warn(name, e);
           }
         }
@@ -587,11 +586,16 @@ function createEmbed(score, mods, map, gid, cid, user, usern) {
       description: `[${map.title} by ${map.artist} [${
         map.version
       }]](https://osu.ppy.sh/beatmapsets/${map.beatmapSetId}/#osu/${map.id})
-       mapped by ${map.creator} ▸ ${global.round(map.difficulty.rating, 0.01)} stars
+       mapped by ${map.creator} ▸ ${global.round(
+        map.difficulty.rating,
+        0.01
+      )} stars
        length: ${result} ▸ (${map.bpm}bpm)
        accuracy: ${determineAcc(map.mode, score.counts)} ▸ (${score.rank})
        score: ${score.score} ▸ ${pp.toString() || "unknown pp value"}
-       ${score.maxCombo}x ▸ [${score.counts['300']}/${score.counts['100']}/${score.counts['50']}/${score.counts['miss']}]
+       ${score.maxCombo}x ▸ [${score.counts["300"]}/${score.counts["100"]}/${
+        score.counts["50"]
+      }/${score.counts["miss"]}]
        mods: [${score.mods}]`
     }
   });
