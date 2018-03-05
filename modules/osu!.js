@@ -1,3 +1,5 @@
+import { setTimeout } from "timers";
+
 let fs = require("fs");
 let ojsama = require('ojsama');
 let node_osu = require("node-osu");
@@ -459,7 +461,6 @@ async function pushLatest(gid, cid, score, usern) {
   let map = mapL[0];
   //console.log(score,map);
   let mods = score.raw_mods;
-  let pp;
   if(map.mode == "Standard") {
   if(!map_data[score.beatmapId]) map_data[score.beatmapId] = {};
   if(!map_data[score.beatmapId][mods]) {
@@ -470,21 +471,35 @@ async function pushLatest(gid, cid, score, usern) {
       if (e) {
         console.error(e);
       }
-      console.log(out);
+      //console.log(out);
         mdata = out;
+        let stars;
+        if(mdata != undefined) {
+          let sdata = new ojsama.parser().feed(mdata);
+          stars = new ojsama.diff().calc({map:sdata.map, mods: mods});
+        }
+        map_data[score.beatmapId][mods] = stars || {};
     })
-    console.log(mdata);
-    if(mdata != undefined) {
-      let sdata = new ojsama.parser().feed(mdata);
-      let stars = new ojsama.diff().calc({map:sdata.map, mods: mods});
-    }
-    map_data[score.beatmapId][mods] = stars;
+    //console.log(mdata);
   }
   fs.writeFileSync(
     path.join(dataFolder, "osutracking.json"),
     JSON.stringify({ track: tracking, set: set, mapdata: map_data })
   );
-  pp = ojsama.ppv2({
+  wrap(score,mods,map,gid,cid,user,usern);
+}
+function wrap(score,mods,map,gid,cid,user,usern) {
+  if(map_data[score.beatmapId][mods]) {
+    createEmbed(score,map,gid,cid,user,usern);
+  }
+  else {
+    setTimeout(()=>{
+      wrap(score,mods,map,gid,cid,user,usern);
+    },30000)
+  }
+}
+function createEmbed(score, map, gid, cid, user, usern) {
+  let pp = ojsama.ppv2({
     stars: map_data[score.beatmapId][mods],
     combo: parseInt(score.maxCombo),
     nmiss: parseInt(score.counts.miss),
