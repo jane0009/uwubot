@@ -486,6 +486,7 @@ async function pushLatest(gid, cid, score, usern) {
     );
     wrap(score, mods, map, gid, cid, user, usern);
   }
+}
   function wrap(score, mods, map, gid, cid, user, usern) {
     if (map_data[score.beatmapId][mods]) {
       createEmbed(score, map, gid, cid, user, usern);
