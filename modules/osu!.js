@@ -405,7 +405,7 @@ let queryApi = async function() {
             }
           }
         }
-        console.log("nms", name, newMapSet);
+        //console.log("nms", name, newMapSet);
         for (nm in newMapSet) {
           if (newMapSet[nm].rank != "F") {
             distance(guild, channel, newMapSet[nm], name);
