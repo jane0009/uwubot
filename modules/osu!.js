@@ -81,12 +81,19 @@ module.exports = {
           return;
         }
         //console.log(user);
-        let userScores = isStats
+        let userScores;
+        try {
+          userScores = isStats
           ? []
           : await osuapi.getUserRecent({
               u: name,
               limit: cnum
             });
+        } catch (e) {
+          if(global.debug) {
+            console.warn(name, e);
+          }
+        }
         if (!userScores[0]) {
           msg.channel.createMessage({
             embed: {
@@ -279,10 +286,17 @@ module.exports = {
             let user = await osuapi.getUser({
               u: name
             });
-            let userScores = await osuapi.getUserRecent({
-              u: name,
-              limit: cnum
-            });
+            let userScores;
+            try {
+              userScores = await osuapi.getUserRecent({
+                u: name,
+                limit: cnum
+              });
+            } catch (e) {
+              if(global.debug) {
+                console.warn(name, e);
+              }
+            }
             if (user) {
               //console.log(user);
               //console.log(userScores);
@@ -388,7 +402,9 @@ let queryApi = async function() {
             limit: 5
           });
         } catch (e) {
-          console.warn(name, e);
+          if(global.debug) {
+            console.warn(name, e);
+          }
         }
         //console.log("dat", name, data);
         let newMapSet = [];
