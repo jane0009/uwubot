@@ -465,16 +465,19 @@ async function pushLatest(gid, cid, score, usern) {
   if(!map_data[score.beatmapId][mods]) {
     let url = `https://osu.ppy.sh/osu/${score.beatmapId}`
     let exec = require("child_process").exec;
+    let mdata;
     await exec(`curl ${url}`, (e, out, err) => {
       if (e) {
         console.error(e);
-      } else {
-        let mdata = out;
       }
+      console.log(out);
+        mdata = out;
     })
     console.log(mdata);
-    let sdata = new ojsama.parser().feed(mdata);
-    let stars = new ojsama.diff().calc({map:sdata.map, mods: mods});
+    if(mdata != undefined) {
+      let sdata = new ojsama.parser().feed(mdata);
+      let stars = new ojsama.diff().calc({map:sdata.map, mods: mods});
+    }
     map_data[score.beatmapId][mods] = stars;
   }
   fs.writeFileSync(
