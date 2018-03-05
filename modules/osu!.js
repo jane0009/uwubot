@@ -24,7 +24,7 @@ module.exports = {
       desc: "set osu! tracked user",
       perm: "all",
       func: async function(msg, args, data) {
-        let c = args.split(" ");
+        let c = global.parseArgs(args);
         switch (c[0]) {
           case "add":
             if (set[msg.author.id]) {
@@ -55,7 +55,7 @@ module.exports = {
       desc: "gets last X plays for a user",
       perm: "all",
       func: async function(msg, args, data) {
-        let c = args.split(" ");
+        let c = global.parseArgs(args);
         let name = c[0];
         let cnum = parseInt(c[1])
           ? parseInt(c[1])
@@ -274,7 +274,7 @@ module.exports = {
       desc: "control which users are tracked in the current channel",
       perm: "all",
       func: async function(msg, args, data) {
-        let c = args.split(" ");
+        let c = global.parseArgs(args);
         let cmd = c[0];
         let name = c[1];
         let cnum = parseInt(c[1]) ? parseInt(c[1]) : 50;
@@ -587,11 +587,11 @@ function createEmbed(score, mods, map, gid, cid, user, usern) {
       description: `[${map.title} by ${map.artist} [${
         map.version
       }]](https://osu.ppy.sh/beatmapsets/${map.beatmapSetId}/#osu/${map.id})
-       mapped by ${map.creator}
-       ${map.mode} - ${global.round(map.difficulty.rating, 0.01)} stars
-       length: ${result} (${map.bpm}bpm)
-       accuracy: ${determineAcc(map.mode, score.counts)} (${score.rank})
-       score: ${score.score} ▸ ${pp.toString() || 0}
+       mapped by ${map.creator} ▸ ${global.round(map.difficulty.rating, 0.01)} stars
+       length: ${result} ▸ (${map.bpm}bpm)
+       accuracy: ${determineAcc(map.mode, score.counts)} ▸ (${score.rank})
+       score: ${score.score} ▸ ${pp.toString() || "unknown pp value"}
+       ${score.maxCombo}x ▸ [${score.counts['300']}/${score.counts['100']}/${score.counts['50']}/${score.counts['miss']}]
        mods: [${score.mods}]`
     }
   });
