@@ -489,7 +489,7 @@ async function pushLatest(gid, cid, score, usern) {
 }
   function wrap(score, mods, map, gid, cid, user, usern) {
     if (map_data[score.beatmapId][mods]) {
-      createEmbed(score, map, gid, cid, user, usern);
+      createEmbed(score, mods, map, gid, cid, user, usern);
     } else {
       console.log(
         "waiting 30s before creating embed... [" +
@@ -503,7 +503,7 @@ async function pushLatest(gid, cid, score, usern) {
       }, 30000);
     }
   }
-  function createEmbed(score, map, gid, cid, user, usern) {
+  function createEmbed(score, mods, map, gid, cid, user, usern) {
     let pp;
     pp =
       ojsama.ppv2({
