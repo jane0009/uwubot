@@ -463,14 +463,13 @@ async function pushLatest(gid, cid, score, usern) {
   if(map.mode == "Standard") {
   if(!map_data[score.beatmapId]) map_data[score.beatmapId] = {};
   if(!map_data[score.beatmapId][mods]) {
-    let mdata;
     let url = `https://osu.ppy.sh/osu/${score.beatmapId}`
     let exec = require("child_process").exec;
-    exec(`curl ${url}`, (e, out, err) => {
+    await exec(`curl ${url}`, (e, out, err) => {
       if (e) {
         console.error(e);
       } else {
-        mdata = out;
+        let mdata = out;
       }
     })
     console.log(mdata);
@@ -491,7 +490,7 @@ async function pushLatest(gid, cid, score, usern) {
     n50:parseInt(score.counts['50']),
     acc_percent: determineAcc(map.mode, score.counts, false),
     max_combo: parseInt(map.maxCombo)
-  })
+  }) || 0;
 }
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
