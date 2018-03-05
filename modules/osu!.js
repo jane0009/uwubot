@@ -503,7 +503,8 @@ async function pushLatest(gid, cid, score, usern) {
     }
   }
   function createEmbed(score, map, gid, cid, user, usern) {
-    let pp =
+    let pp;
+    pp =
       ojsama.ppv2({
         stars: map_data[score.beatmapId][mods],
         combo: parseInt(score.maxCombo),
@@ -513,8 +514,8 @@ async function pushLatest(gid, cid, score, usern) {
         n50: parseInt(score.counts["50"]),
         acc_percent: determineAcc(map.mode, score.counts, false),
         max_combo: parseInt(map.maxCombo)
-      }) || 0;
-  }
+      });
+  
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
   //console.log(user, usern);
@@ -551,7 +552,7 @@ async function pushLatest(gid, cid, score, usern) {
        ${map.mode} - ${global.round(map.difficulty.rating, 0.01)} stars
        length: ${result} (${map.bpm}bpm)
        accuracy: ${determineAcc(map.mode, score.counts)} (${score.rank})
-       score: ${score.score} (${score.pp || pp.toString()}pp)
+       score: ${score.score} (${pp.toString() || 0}pp)
        mods: [${score.mods}]`
     }
   });
