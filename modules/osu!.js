@@ -557,8 +557,8 @@ function wrap(score, mods, map, chans, user, usern) {
       max_combo: parseInt(map.maxCombo)
     });
     for(guild in chans) {
-      let chans = chans[guild];
-      for(chan in chans) {
+      let nchans = chans[guild];
+      for(chan in nchans) {
         createEmbed(score, mods, map, guild, chan, user, usern, pp);
       }
     }
