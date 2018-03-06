@@ -432,6 +432,7 @@ let queryApi = async function() {
           }
         }
         else {
+          if(!dat[user].chans) dat[user].chans = {};
           if(dat[user].chans[guild]) {
             dat[user].chans[guild].push(channel)
           }
