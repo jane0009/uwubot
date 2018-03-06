@@ -559,6 +559,7 @@ function wrap(score, mods, map, chans, user, usern) {
     for(guild in chans) {
       let nchans = chans[guild];
       for(chan in nchans) {
+        console.log(guild,chan)
         createEmbed(score, mods, map, guild, chan, user, usern, pp);
       }
     }
