@@ -389,45 +389,55 @@ module.exports = {
   }
 };
 let queryApi = async function() {
+  let dat = {};
   for (guild in tracking) {
     for (channel in tracking[guild]) {
       for (user in tracking[guild][channel]) {
         //console.log(tracking[guild][channel]);
         let name = tracking[guild][channel][user].user.username;
         let data;
-        try {
-          data = await osuapi.getUserRecent({
-            u: name,
-            limit: 5
-          });
-        } catch (e) {
-          if (global.debug) {
-            console.warn(name, e);
-          }
-        }
-        //console.log("dat", name, data);
-        let newMapSet = [];
-        if (!tracking[guild][channel][user].latest[0]) {
-          newMapSet = data;
-        } else {
-          //console.log("f");
-          for (map in data) {
-            let ts = data[map].raw_date;
-            let ots = tracking[guild][channel][user].latest[0].raw_date;
-            //console.log("stamp", ts, ots);
-            if (new Date(ts).getTime() > new Date(ots).getTime()) {
-              newMapSet.push(data[map]);
+        if(!dat[user]) {
+          dat[user] = {}
+          try {
+            data = await osuapi.getUserRecent({
+              u: name,
+              limit: 5
+            });
+          } catch (e) {
+            if (global.debug) {
+              console.warn(name, e);
             }
           }
-        }
-        //console.log("nms", name, newMapSet);
-        for (nm in newMapSet) {
-          if (newMapSet[nm].rank != "F") {
-            distance(guild, channel, newMapSet[nm], name);
+          //console.log("dat", name, data);
+          let newMapSet = [];
+          if (!tracking[guild][channel][user].latest[0]) {
+            newMapSet = data;
+          } else {
+            //console.log("f");
+            for (map in data) {
+              let ts = data[map].raw_date;
+              let ots = tracking[guild][channel][user].latest[0].raw_date;
+              //console.log("stamp", ts, ots);
+              if (new Date(ts).getTime() > new Date(ots).getTime()) {
+                newMapSet.push(data[map]);
+              }
+            }
+          }
+          //console.log("nms", name, newMapSet);
+          if (newMapSet && newMapSet[0]) {
+            dat[user].chans = {}
+            dat[user].chans[guild] = [channel]
+            dat[user].maps = newMapSet;
+            tracking[guild][channel][user].latest = newMapSet;
           }
         }
-        if (newMapSet && newMapSet[0]) {
-          tracking[guild][channel][user].latest = newMapSet;
+        else {
+          if(dat[user].chans[guild]) {
+            dat[user].chans[guild].push(channel)
+          }
+          else {
+            dat[user].chans[guild] = [channel];
+          }
         }
       }
     }
@@ -436,10 +446,17 @@ let queryApi = async function() {
     path.join(dataFolder, "osutracking.json"),
     JSON.stringify({ track: tracking, set: set, mapdata: map_data })
   );
+  for(user in dat) {
+    for(map in dat[user].maps) {
+      if (dat[user].maps[map].rank != "F") {
+      distance(dat[user].chans, dat[user].maps[map], user);
+      }
+    }
+  }
 };
-function distance(guild, channel, ms, name) {
+function distance(chans, ms, name) {
   setTimeout(() => {
-    pushLatest(guild, channel, ms, name);
+    pushLatest(chans, ms, name);
   }, 30000);
 }
 function getColor(rank) {
@@ -477,7 +494,7 @@ async function gc() {
     }
   }
 }
-async function pushLatest(gid, cid, score, usern) {
+async function pushLatest(chans, score, usern) {
   //console.log("\n\n\n\n\n");
   let user = await osuapi.getUser({
     u: usern
@@ -519,12 +536,31 @@ async function pushLatest(gid, cid, score, usern) {
       path.join(dataFolder, "osutracking.json"),
       JSON.stringify({ track: tracking, set: set, mapdata: map_data })
     );
-    wrap(score, mods, map, gid, cid, user, usern);
+    wrap(score, mods, map, chans, user, usern);
   }
 }
-function wrap(score, mods, map, gid, cid, user, usern) {
+function wrap(score, mods, map, chans, user, usern) {
   if (map_data[score.beatmapId][mods]) {
-    createEmbed(score, mods, map, gid, cid, user, usern);
+    let pp;
+    let stars = map_data[score.beatmapId][mods];
+    stars.map = map_data[score.beatmapId].map;
+    map_data[score.beatmapId].date = new Date().getTime();
+    pp = ojsama.ppv2({
+      stars: stars,
+      combo: parseInt(score.maxCombo),
+      nmiss: parseInt(score.counts.miss),
+      n300: parseInt(score.counts["300"]),
+      n100: parseInt(score.counts["100"]),
+      n50: parseInt(score.counts["50"]),
+      acc_percent: determineAcc(map.mode, score.counts, false),
+      max_combo: parseInt(map.maxCombo)
+    });
+    for(guild in chans) {
+      let chans = chans[guild];
+      for(chan in chans) {
+        createEmbed(score, mods, map, guild, chan, user, usern, pp);
+      }
+    }
   } else {
     console.log(
       "waiting 30s before creating embed... [" +
@@ -534,25 +570,12 @@ function wrap(score, mods, map, gid, cid, user, usern) {
         "]"
     );
     setTimeout(() => {
-      wrap(score, mods, map, gid, cid, user, usern);
+      wrap(score, mods, map, chans, user, usern);
     }, 30000);
   }
 }
-function createEmbed(score, mods, map, gid, cid, user, usern) {
-  let pp;
-  let stars = map_data[score.beatmapId][mods];
-  stars.map = map_data[score.beatmapId].map;
-  map_data[score.beatmapId].date = new Date().getTime();
-  pp = ojsama.ppv2({
-    stars: stars,
-    combo: parseInt(score.maxCombo),
-    nmiss: parseInt(score.counts.miss),
-    n300: parseInt(score.counts["300"]),
-    n100: parseInt(score.counts["100"]),
-    n50: parseInt(score.counts["50"]),
-    acc_percent: determineAcc(map.mode, score.counts, false),
-    max_combo: parseInt(map.maxCombo)
-  });
+function createEmbed(score, mods, map, gid, cid, user, usern, pp) {
+  
 
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
@@ -591,7 +614,7 @@ function createEmbed(score, mods, map, gid, cid, user, usern) {
         0.01
       )} stars
        length: ${result} ▸ (${map.bpm}bpm)
-       accuracy: ${determineAcc(map.mode, score.counts)} ▸ (${score.rank})
+       accuracy: ${determineAcc(map.mode, score.counts)} ▸ map.rankedStatus ▸ (${score.rank})
        score: ${score.score} ▸ ${pp.toString() || "unknown pp value"}
        ${score.maxCombo}x ▸ [${score.counts["300"]}/${score.counts["100"]}/${
         score.counts["50"]
