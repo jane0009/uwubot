@@ -410,7 +410,7 @@ let queryApi = async function() {
           }
           //console.log("dat", name, data);
           let newMapSet = [];
-          if (!tracking[guild][channel][user].latest[0]) {
+          if (!tracking[guild][channel][user].latest || !tracking[guild][channel][user].latest[0]) {
             newMapSet = data;
           } else {
             //console.log("f");
