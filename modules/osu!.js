@@ -548,22 +548,27 @@ async function pushLatest(chans, score, usern) {
     wrap(score, mods, map, chans, user, usern);
   }
 }
-function wrap(score, mods, map, chans, user, usern) {
-  if (map_data[score.beatmapId][mods]) {
+function wrap(score, mods, map, chans, user, usern, iter = 0) {
+  if (map_data[score.beatmapId][mods] && map_data[score.beatmapId].map) {
     let pp;
     let stars = map_data[score.beatmapId][mods];
     stars.map = map_data[score.beatmapId].map;
     map_data[score.beatmapId].date = new Date().getTime();
-    pp = ojsama.ppv2({
-      stars: stars,
-      combo: parseInt(score.maxCombo),
-      nmiss: parseInt(score.counts.miss),
-      n300: parseInt(score.counts["300"]),
-      n100: parseInt(score.counts["100"]),
-      n50: parseInt(score.counts["50"]),
-      acc_percent: determineAcc(map.mode, score.counts, false),
-      max_combo: parseInt(map.maxCombo)
-    });
+    try {
+      pp = ojsama.ppv2({
+        stars: stars,
+        combo: parseInt(score.maxCombo),
+        nmiss: parseInt(score.counts.miss),
+        n300: parseInt(score.counts["300"]),
+        n100: parseInt(score.counts["100"]),
+        n50: parseInt(score.counts["50"]),
+        acc_percent: determineAcc(map.mode, score.counts, false),
+        max_combo: parseInt(map.maxCombo)
+      });
+    } catch (e) {
+      console.error(e);
+      pp = "unknown pp amount (calculation failed)";
+    }
     for (guild in chans) {
       let nchans = chans[guild];
       for (chan in nchans) {
@@ -580,9 +585,13 @@ function wrap(score, mods, map, chans, user, usern) {
           usern +
           "]"
       );
-      setTimeout(() => {
-        wrap(score, mods, map, chans, user, usern);
-      }, 30000);
+      if (iter < 20) {
+        setTimeout(() => {
+          wrap(score, mods, map, chans, user, usern, iter + 1);
+        }, 30000);
+      } else {
+        console.warn("could not embed play after 20 tries.");
+      }
     }
   }
 }
