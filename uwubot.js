@@ -329,14 +329,15 @@ for (let f of files) {
 }
 bot.connect();
 
-function warn(msg) {
-  console.warn("RETRY ::", msg);
-}
 bot.on("error", e => {
-  console.warn("BOT ERRORED ::", e);
+  if (global.error) {
+    console.warn(e);
+  }
 });
 bot.on("warn", w => {
-  console.warn("BOT WARN ::", w);
+  if (global.warn) {
+    console.warn(w);
+  }
 });
 process.on("error", e => {
   if (global.error) {

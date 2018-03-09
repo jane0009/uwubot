@@ -346,7 +346,11 @@ module.exports = {
             global.warn = false;
             global.error = true;
             break;
+          default:
+            msg.channel.createMessage("nah");
         }
+        console.log("switched logging level to " + a[0]);
+        msg.channel.createMessage("set logging level to " + a[0]);
       }
     },
     info: {

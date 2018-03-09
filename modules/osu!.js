@@ -396,8 +396,8 @@ let queryApi = async function() {
         //console.log(tracking[guild][channel]);
         let name = tracking[guild][channel][user].user.username;
         let data;
-        if(!dat[user]) {
-          dat[user] = {}
+        if (!dat[user]) {
+          dat[user] = {};
           try {
             data = await osuapi.getUserRecent({
               u: name,
@@ -410,7 +410,10 @@ let queryApi = async function() {
           }
           //console.log("dat", name, data);
           let newMapSet = [];
-          if (!tracking[guild][channel][user].latest || !tracking[guild][channel][user].latest[0]) {
+          if (
+            !tracking[guild][channel][user].latest ||
+            !tracking[guild][channel][user].latest[0]
+          ) {
             newMapSet = data;
           } else {
             //console.log("f");
@@ -425,18 +428,16 @@ let queryApi = async function() {
           }
           //console.log("nms", name, newMapSet);
           if (newMapSet && newMapSet[0]) {
-            dat[user].chans = {}
-            dat[user].chans[guild] = [channel]
+            dat[user].chans = {};
+            dat[user].chans[guild] = [channel];
             dat[user].maps = newMapSet;
             tracking[guild][channel][user].latest = newMapSet;
           }
-        }
-        else {
-          if(!dat[user].chans) dat[user].chans = {};
-          if(dat[user].chans[guild]) {
-            dat[user].chans[guild].push(channel)
-          }
-          else {
+        } else {
+          if (!dat[user].chans) dat[user].chans = {};
+          if (dat[user].chans[guild]) {
+            dat[user].chans[guild].push(channel);
+          } else {
             dat[user].chans[guild] = [channel];
           }
         }
@@ -447,10 +448,13 @@ let queryApi = async function() {
     path.join(dataFolder, "osutracking.json"),
     JSON.stringify({ track: tracking, set: set, mapdata: map_data })
   );
-  for(user in dat) {
-    for(map in dat[user].maps) {
-      if (dat[user].maps[map].rank != "F" || dat[user].maps[map].maxCombo > 200) {
-      distance(dat[user].chans, dat[user].maps[map], user);
+  for (user in dat) {
+    for (map in dat[user].maps) {
+      if (
+        dat[user].maps[map].rank != "F" ||
+        dat[user].maps[map].maxCombo > 200
+      ) {
+        distance(dat[user].chans, dat[user].maps[map], user);
       }
     }
   }
@@ -490,8 +494,8 @@ function getColor(rank) {
 async function gc() {
   for (map in map_data) {
     if (map_data[map].date + 604800000 < new Date()) {
-      if(global.info) {
-      console.log("deleting map " + map);
+      if (global.info) {
+        console.log("deleting map " + map);
       }
       delete map_data[map];
     }
@@ -517,7 +521,9 @@ async function pushLatest(chans, score, usern) {
       let mdata;
       await exec(`curl ${url}`, (e, out, err) => {
         if (e) {
-          console.error(e);
+          if (global.error) {
+            console.error(e);
+          }
         }
         //console.log(out);
         mdata = out;
@@ -558,31 +564,29 @@ function wrap(score, mods, map, chans, user, usern) {
       acc_percent: determineAcc(map.mode, score.counts, false),
       max_combo: parseInt(map.maxCombo)
     });
-    for(guild in chans) {
+    for (guild in chans) {
       let nchans = chans[guild];
-      for(chan in nchans) {
+      for (chan in nchans) {
         //console.log(guild,chan)
         createEmbed(score, mods, map, guild, nchans[chan], user, usern, pp);
       }
     }
   } else {
-    if(global.debug) {
-    console.log(
-      "waiting 30s before creating embed... [" +
-        score.beatmapId +
-        ", " +
-        usern +
-        "]"
-    );
-    setTimeout(() => {
-      wrap(score, mods, map, chans, user, usern);
-    }, 30000);
-  }
+    if (global.debug) {
+      console.log(
+        "waiting 30s before creating embed... [" +
+          score.beatmapId +
+          ", " +
+          usern +
+          "]"
+      );
+      setTimeout(() => {
+        wrap(score, mods, map, chans, user, usern);
+      }, 30000);
+    }
   }
 }
 function createEmbed(score, mods, map, gid, cid, user, usern, pp) {
-  
-
   /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
     console.log(scores);*/
   //console.log(user, usern);
@@ -620,7 +624,10 @@ function createEmbed(score, mods, map, gid, cid, user, usern, pp) {
         0.01
       )} stars
        length: ${result} ▸ (${map.bpm}bpm)
-       accuracy: ${determineAcc(map.mode, score.counts)} ▸ map.rankedStatus ▸ (${score.rank})
+       accuracy: ${determineAcc(
+         map.mode,
+         score.counts
+       )} ▸ map.rankedStatus ▸ (${score.rank})
        score: ${score.score} ▸ ${pp.toString() || "unknown pp value"}
        ${score.maxCombo}x ▸ [${score.counts["300"]}/${score.counts["100"]}/${
         score.counts["50"]
