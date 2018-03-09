@@ -449,7 +449,7 @@ let queryApi = async function() {
   );
   for(user in dat) {
     for(map in dat[user].maps) {
-      if (dat[user].maps[map].rank != "F") {
+      if (dat[user].maps[map].rank != "F" || dat[user].maps[map].maxCombo > 200) {
       distance(dat[user].chans, dat[user].maps[map], user);
       }
     }

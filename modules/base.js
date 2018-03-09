@@ -309,7 +309,7 @@ module.exports = {
       perm: "all",
       func: function(msg, args, data) {
         let str =
-          "```md\n# \tjanebot\nthis used to be janebot actually now its just an osu tracker\n\tstill WIP.\nmade by jane#0009\nsome other stuff\ninvite: https://discordapp.com/oauth2/authorize?client_id=267386152321941505&scope=bot```";
+          "```md\n# \tjanebot\nthis used to be janebot actually now its just an osu tracker\n\tstill WIP.\nmade by jane#0009\nsome other stuff\ngh: https://github.com/janeptrv/uwubot\ninvite: https://discordapp.com/oauth2/authorize?client_id=267386152321941505&scope=bot```";
         msg.channel.createMessage(str);
       }
     },
@@ -510,6 +510,26 @@ module.exports = {
       time: 5000,
       func: function() {
         console.log("test");
+      }
+    },
+    status: {
+      type: "interval",
+      time: 60000,
+      func: function() {
+        let bot = global.janebot.bot;
+        let presences = [
+          `osu! | <help`,
+          `PP farming... | <help`,
+          `FC'ing Centipede | <help`,
+          `clicking some circles | <help`,
+          `Elite Beat Agents | <help`,
+          `with an osu!tablet | <help`,
+          `beating slice's scores... | <help`
+        ]
+        bot.editStatus("online", {
+          name: presences[Math.floor(Math.random()*presences.length)],
+          type: 0
+        });
       }
     }
   },
