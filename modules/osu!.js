@@ -493,7 +493,7 @@ function getColor(rank) {
 }
 async function gc() {
   for (map in map_data) {
-    if (map_data[map].date + 604800000 < new Date()) {
+    if (map_data[map].date + 259200000 < new Date()) {
       if (global.info) {
         console.log("deleting map " + map);
       }
