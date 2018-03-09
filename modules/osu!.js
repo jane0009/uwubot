@@ -490,7 +490,9 @@ function getColor(rank) {
 async function gc() {
   for (map in map_data) {
     if (map_data[map].date + 604800000 < new Date()) {
+      if(global.info) {
       console.log("deleting map " + map);
+      }
       delete map_data[map];
     }
   }
@@ -564,6 +566,7 @@ function wrap(score, mods, map, chans, user, usern) {
       }
     }
   } else {
+    if(global.debug) {
     console.log(
       "waiting 30s before creating embed... [" +
         score.beatmapId +
@@ -574,6 +577,7 @@ function wrap(score, mods, map, chans, user, usern) {
     setTimeout(() => {
       wrap(score, mods, map, chans, user, usern);
     }, 30000);
+  }
   }
 }
 function createEmbed(score, mods, map, gid, cid, user, usern, pp) {

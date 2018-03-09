@@ -13,6 +13,11 @@ global.janebot.utils = {};
 global.janebot.utils.later = later;
 global.janebot.utils.fs = fs;
 
+global.debug = false;
+global.info = true;
+global.warn = true;
+global.error = true;
+
 Object.defineProperty(eris.Message.prototype, "guild", {
   get: function() {
     return this.channel.guild;
@@ -132,12 +137,18 @@ janebot.aliases = {};
 janebot.tagbase = {};
 let bot = janebot.bot;
 bot.on("newListener", (f, list) => {
-  console.log("new event created " + f);
+  if (global.debug) {
+    console.log("new event created " + f);
+  }
 });
 //
 bot.on("ready", () => {
-  console.log("ready");
-  console.log("finish ready");
+  if (global.info) {
+    console.log("ready");
+  }
+  if (global.debug) {
+    console.log("finish ready");
+  }
   //bot.users.get("123601647258697730").getDMChannel().createMessage("loaded")
 });
 
@@ -147,7 +158,9 @@ bot.on("messageCreate", msg => {
     msg.content == "j%FALLBACKDEBUGTEST" &&
     msg.author.id == "123601647258697730"
   ) {
-    console.log("debug recieved");
+    if (global.debug) {
+      console.log("debug recieved");
+    }
     msg.channel.createMessage("DEBUG RECIEVED..");
   }
   let c = parse(msg);
@@ -158,15 +171,17 @@ bot.on("messageCreate", msg => {
       let command = m.command;
       m.command = janebot.aliases[command].command;
       m.args = janebot.aliases[command].args + " " + m.args;
-      console.log(
-        "changed alias from " +
-          command +
-          " to " +
-          m.command +
-          "(args " +
-          janebot.aliases[command].args +
-          ")"
-      );
+      if (global.debug) {
+        console.log(
+          "changed alias from " +
+            command +
+            " to " +
+            m.command +
+            "(args " +
+            janebot.aliases[command].args +
+            ")"
+        );
+      }
     }
     if (m.command && janebot.commands[m.command]) {
       //
@@ -256,7 +271,9 @@ async function parse(message) {
 //
 var files = fs.readdirSync(__dirname + "/modules/");
 for (let f of files) {
-  console.log("loaded " + f);
+  if (global.info) {
+    console.log("loaded " + f);
+  }
   let e = reload(__dirname + "/modules/" + f);
   if (!e.disabled) {
     if (e.commands) {
@@ -268,7 +285,9 @@ for (let f of files) {
               : [];
             janebot.tagbase[cmd].push(cmd);
             let aliases = Object.filter(global.janebot.aliases, a => {
-              console.log(a.command, cmd);
+              if (global.debug) {
+                console.log(a.command, cmd);
+              }
               return a.command == cmd;
             });
             for (al in aliases) {
@@ -320,13 +339,19 @@ bot.on("warn", w => {
   console.warn("BOT WARN ::", w);
 });
 process.on("error", e => {
-  console.log(e);
+  if (global.error) {
+    console.error(e);
+  }
 });
 process.on("uncaughtException", e => {
-  console.log(e);
+  if (global.warn) {
+    console.warn(e);
+  }
 });
 bot.on("disconnect", () => {
-  console.log("client disconnected");
+  if (global.warn) {
+    console.warn("client disconnected");
+  }
 });
 /*return retry(function(options) {
     return Promise;
@@ -347,7 +372,9 @@ bot.on("disconnect", () => {
     
 },1000);*/
 bot.on("removeListener", (f, list) => {
-  console.log("event removed " + f);
+  if (global.debug) {
+    console.log("event removed " + f);
+  }
 });
 for (hook in janebot.exthooks) {
   //console.log("HOOK EVENT " + janebot.exthooks[hook].event)
@@ -377,4 +404,6 @@ for (timer in janebot.timers) {
     janebot.timers[timer].timer = t;
   }
 }
-console.log("REACHED EOF");
+if (global.debug) {
+  console.log("REACHED EOF");
+}

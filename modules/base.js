@@ -24,7 +24,9 @@ module.exports = {
         let str = "```md\n";
         for (cmd in global.janebot.commands) {
           let aliases = Object.filter(global.janebot.aliases, a => {
-            console.log(a.command, cmd);
+            if (global.debug) {
+              console.log(a.command, cmd);
+            }
             return a.command == cmd;
           });
           if (
@@ -35,7 +37,9 @@ module.exports = {
               str +=
                 "\t" + cmd + " (" + global.janebot.commands[cmd].module + ")\n";
               let size = Object.keys(aliases).length;
-              console.log(aliases, size);
+              if (global.debug) {
+                console.log(aliases, size);
+              }
               if (size) {
                 let aliasesArr = [];
                 for (al in aliases) {
@@ -58,7 +62,9 @@ module.exports = {
             str +=
               "\t" + cmd + " (" + global.janebot.commands[cmd].module + ")\n";
             let size = Object.keys(aliases).length;
-            console.log(aliases, size);
+            if (global.debug) {
+              console.log(aliases, size);
+            }
             if (size) {
               let aliasesArr = [];
               for (al in aliases) {
@@ -126,7 +132,9 @@ module.exports = {
             msg.channel.createMessage(
               "failed to reload module: ```bash\n" + err.stack + "```"
             );
-            console.error("\n", err.stack);
+            if (global.error) {
+              console.error("\n", err.stack);
+            }
             return;
           }
           if (e.commands) {
@@ -220,10 +228,14 @@ module.exports = {
               janebot.timers[timer].timer = t;
             }
           }
-          console.log(`reloaded ${args}.`);
+          if (global.info) {
+            console.log(`reloaded ${args}.`);
+          }
           msg.channel.createMessage("reloaded " + args + ".");
         } else {
-          console.log(`failed to reload ${args}.`);
+          if (global.info) {
+            console.log(`failed to reload ${args}.`);
+          }
           msg.channel.createMessage("module not found.");
         }
       }
@@ -304,6 +316,39 @@ module.exports = {
         }
       }
     },
+    logs: {
+      desc: "changes logging level",
+      perm: "owner",
+      func: function(msg, args, data) {
+        let a = global.parseArgs(args);
+        switch (a[0]) {
+          case "debug":
+            global.debug = true;
+            global.info = true;
+            global.warn = true;
+            global.error = true;
+            break;
+          case "info":
+            global.debug = false;
+            global.info = true;
+            global.warn = true;
+            global.error = true;
+            break;
+          case "warn":
+            global.debug = false;
+            global.info = false;
+            global.warn = true;
+            global.error = true;
+            break;
+          case "error":
+            global.debug = false;
+            global.info = false;
+            global.warn = false;
+            global.error = true;
+            break;
+        }
+      }
+    },
     info: {
       desc: "bot info",
       perm: "all",
@@ -356,18 +401,26 @@ module.exports = {
             closeFunc(shell);
           }, 30000);
           global.janebot.shellTimeouts[msg.guild.id] = timeout;
-          console.log("spawned new shell for " + msg.guild.id);
+          if (global.debug) {
+            console.log("spawned new shell for " + msg.guild.id);
+          }
           shell.stdout.on("data", data => {
-            console.log("shell output for " + msg.guild.id + ": " + data);
+            if (global.debug) {
+              console.log("shell output for " + msg.guild.id + ": " + data);
+            }
             msg.channel.createMessage("```\n" + data + "\n```");
           });
 
           shell.stderr.on("data", data => {
-            console.warn("shell error for " + msg.guild.id + ": " + data);
+            if (global.warn) {
+              console.warn("shell error for " + msg.guild.id + ": " + data);
+            }
             msg.channel.createMessage("```\n(errored)\n" + data + "\n```");
           });
           shell.on("close", code => {
-            console.log("shell for " + msg.guild.id + " closed");
+            if (global.debug) {
+              console.log("shell for " + msg.guild.id + " closed");
+            }
             msg.channel.createMessage("Shell closed with exit code " + code);
             delete global.janebot.shell[msg.guild.id];
           });
@@ -381,11 +434,15 @@ module.exports = {
             msg.channel.createMessage("sudo is not supported.");
             return;
           }
-          console.log(`ran shell with args ${args}`);
+          if (global.debug) {
+            console.log(`ran shell with args ${args}`);
+          }
           if (!args.endsWith("\n")) args += "\n";
           sh.stdin.write(args);
           if (!args.includes("exit")) {
-            console.log("reset timer");
+            if (global.debug) {
+              console.log("reset timer");
+            }
             to = setTimeout(() => {
               closeFunc(sh);
             }, 30000);
@@ -525,9 +582,9 @@ module.exports = {
           `Elite Beat Agents | <help`,
           `with an osu!tablet | <help`,
           `beating slice's scores... | <help`
-        ]
+        ];
         bot.editStatus("online", {
-          name: presences[Math.floor(Math.random()*presences.length)],
+          name: presences[Math.floor(Math.random() * presences.length)],
           type: 0
         });
       }
