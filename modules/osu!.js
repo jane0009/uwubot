@@ -8,11 +8,28 @@ let tracking = {};
 let set = {};
 let map_data = {};
 let dataFolder = path.join("/home/jane/uwubot", "data");
-let cfg = require(path.join(dataFolder, "osutracking.json"));
+let cfg, data;
+try {
+  cfg = require(path.join(dataFolder, "osutracking.json"));
+}
+catch (e) {
+  fs.writeFileSync(path.join(dataFolder, "osutracking.json"), "{}");
+}
+try {
+  data = require(path.join(dataFolder, "osudata.json"));
+}
+catch (e) {
+  fs.writeFileSync(path.join(dataFolder, "osudata.json"), "{}");
+}
 if (cfg.set) {
   tracking = cfg.track || {};
   set = cfg.set || {};
-  map_data = cfg.mapdata || {};
+  if(cfg.mapdata) {
+    map_data = cfg.mapdata || {};
+  }
+  else {
+    map_data = data;
+  }
 } else {
   tracking = cfg || {};
 }
@@ -47,7 +64,11 @@ module.exports = {
         }
         fs.writeFileSync(
           path.join(dataFolder, "osutracking.json"),
-          JSON.stringify({ track: tracking, set: set, mapdata: map_data })
+          JSON.stringify({ track: tracking, set: set})
+        );
+        fs.writeFileSync(
+          path.join(dataFolder, "osudata.json"),
+          JSON.stringify(map_data)
         );
       }
     },
@@ -316,7 +337,11 @@ module.exports = {
               msg.channel.createMessage("Now tracking " + name);
               fs.writeFileSync(
                 path.join(dataFolder, "osutracking.json"),
-                JSON.stringify({ track: tracking, set: set, mapdata: map_data })
+                JSON.stringify({ track: tracking, set: set})
+              );
+              fs.writeFileSync(
+                path.join(dataFolder, "osudata.json"),
+                JSON.stringify(map_data)
               );
             } else {
               msg.channel.createMessage(
@@ -329,7 +354,11 @@ module.exports = {
             delete tracking[msg.guild.id][msg.channel.id][name];
             fs.writeFileSync(
               path.join(dataFolder, "osutracking.json"),
-              JSON.stringify({ track: tracking, set: set, mapdata: map_data })
+              JSON.stringify({ track: tracking, set: set})
+            );
+            fs.writeFileSync(
+              path.join(dataFolder, "osudata.json"),
+              JSON.stringify(map_data)
             );
             break;
           case "get":
@@ -346,6 +375,15 @@ module.exports = {
               "```\nuse <track add to add a user\nuse <track remove to remove a user\nuse <track [get|list] to list all tracked users\n```"
             );
         }
+      }
+    },
+    cache: {
+      desc: "clears the cache",
+      perm: "owner",
+      func: async function(msg,args,data) {
+        let total = args.split(" ")[0] == "true"
+        msg.channel.createMessage("wiping cache... full wipe is " + (total ? "on" : "off"))
+        gc(total);
       }
     }
   },
@@ -375,8 +413,9 @@ module.exports = {
     garbagecollect: {
       type: "schedule",
       time: "@daily",
-      func: function() {
-        gc();
+      func: async function() {
+        await backup();
+        await gc(false);
       }
     }
   },
@@ -446,7 +485,11 @@ let queryApi = async function() {
   }
   fs.writeFileSync(
     path.join(dataFolder, "osutracking.json"),
-    JSON.stringify({ track: tracking, set: set, mapdata: map_data })
+    JSON.stringify({ track: tracking, set: set})
+  );
+  fs.writeFileSync(
+    path.join(dataFolder, "osudata.json"),
+    JSON.stringify(map_data)
   );
   for (user in dat) {
     for (map in dat[user].maps) {
@@ -491,15 +534,29 @@ function getColor(rank) {
       return parseInt(0xf33836, 10);
   }
 }
-async function gc() {
+async function backup() {
+  fs.writeFileSync(
+    path.join(dataFolder, ".osubackup.json"),
+    JSON.stringify({ track: tracking, set: set})
+  );
+}
+async function gc(total = false) {
   for (map in map_data) {
-    if (map_data[map].date + 259200000 < new Date()) {
+    if (map_data[map].date + 259200000 < new Date() || total) {
       if (global.info) {
         console.log("deleting map " + map);
       }
       delete map_data[map];
     }
   }
+  fs.writeFileSync(
+    path.join(dataFolder, "osutracking.json"),
+    JSON.stringify({ track: tracking, set: set})
+  );
+  fs.writeFileSync(
+    path.join(dataFolder, "osudata.json"),
+    JSON.stringify(map_data)
+  );
 }
 async function pushLatest(chans, score, usern) {
   //console.log("\n\n\n\n\n");
