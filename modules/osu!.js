@@ -676,6 +676,9 @@ function createEmbed(score, mods, map, gid, cid, user, usern, pp) {
   var date = new Date(null);
   date.setSeconds(map.time.total); // specify value for SECONDS here
   var result = date.toISOString().substr(11, 8);
+  if(global.debug) {
+    console.log(gid, " || ", cid)
+  }
   let chan = global.janebot.bot.guilds.get(gid).channels.get(cid);
   chan.createMessage({
     embed: {
