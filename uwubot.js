@@ -70,6 +70,7 @@ console.error = function(message, ...options) {
     d.getSeconds() +
     "." +
     d.getMilliseconds();
+    chLog(date + " |ERROR| " + message)
   _err(date + " |ERROR| " + message, ...options);
 };
 //
@@ -106,6 +107,13 @@ let keys = janebot.keys;
 keys.osu = configfile.osuapi;
 janebot.bot = new eris(configfile.token, {});
 janebot.fs = fs;
+let guild = "141930443518771200"
+let channel = "344996878829617152"
+function chLog(data) {
+  if (channel && guild) {
+    janebot.bot.guilds.get(guild).channels.get(channel).createMessage(data)
+  } 
+}
 janebot.commands = {
   eval: {
     module: "base",

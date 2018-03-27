@@ -600,7 +600,11 @@ async function pushLatest(chans, score, usern) {
     }
     fs.writeFileSync(
       path.join(dataFolder, "osutracking.json"),
-      JSON.stringify({ track: tracking, set: set, mapdata: map_data })
+      JSON.stringify({ track: tracking, set: set})
+    );
+    fs.writeFileSync(
+      path.join(dataFolder, "osudata.json"),
+      JSON.stringify(map_data)
     );
     wrap(score, mods, map, chans, user, usern);
   }
