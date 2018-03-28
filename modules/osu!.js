@@ -679,7 +679,27 @@ function createEmbed(score, mods, map, gid, cid, user, usern, pp) {
   if(global.debug) {
     console.log(gid, " || ", cid)
   }
+  if(!gid) {
+    delete tracking[gid]
+    console.warn(gid + ", " + cid + " does not exist! deleting guild settings...")
+    return;
+  }
+  else if(!cid) {
+    delete tracking[gid][cid]
+    console.warn(gid + ", " + cid + " does not exist! deleting channel settings...")
+    return;
+  }
+  else if(!global.janebot.bot.guilds.get(gid)) {
+    delete tracking[gid]
+    console.warn(gid + ", " + cid + " does not exist! deleting guild settings...")
+    return;
+  }
   let chan = global.janebot.bot.guilds.get(gid).channels.get(cid);
+  if(!chan) {
+    delete tracking[gid][cid]
+    console.warn(gid + ", " + cid + " does not exist! deleting channel settings...")
+    return;
+  }
   chan.createMessage({
     embed: {
       title: `new! for user ${
