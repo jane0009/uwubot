@@ -43,6 +43,15 @@ function containsObject(obj, list) {
 
   return false;
 }
+function ArrNoDupe(a) {
+  var temp = {};
+  for (var i = 0; i < a.length; i++)
+      temp[a[i]] = true;
+  var r = [];
+  for (var k in temp)
+      r.push(k);
+  return r;
+}
 module.exports = {
   disabled: false,
   name: "osu!",
@@ -454,8 +463,7 @@ let queryApi = async function() {
             });
           } catch (e) {
             if (global.debug) {
-              console.warn(name)
-              console.warn(e);
+              console.warn(name, e);
             }
           }
           //console.log("dat", name, data);
@@ -524,6 +532,11 @@ let queryApi = async function() {
         dat[user].maps[map].rank != "F" ||
         dat[user].maps[map].maxCombo > 200
       ) {
+        let uniq = ArrNoDupe(dat[user].chans)
+        if(global.debug) {
+          console.log(uniq)
+        }
+        dat[user].chans = uniq
         distance(dat[user].chans, dat[user].maps[map], user);
       }
     }
@@ -661,7 +674,7 @@ function wrap(score, mods, map, chans, user, usern, iter = 0) {
       let nchans = chans[guild];
       for (chan in nchans) {
         if(global.debug) {
-          console.log(guild,chan)
+          console.log(guild + " >> " + chan)
         }
         createEmbed(score, mods, map, guild, nchans[chan], user, usern, pp);
       }
@@ -686,10 +699,6 @@ function wrap(score, mods, map, chans, user, usern, iter = 0) {
   }
 }
 function createEmbed(score, mods, map, gid, cid, user, usern, pp) {
-  /*let scores = await osuapi.scores.get(score.id, score.mods, 1, usern, nodesu.LookupType.string);
-    console.log(scores);*/
-  //console.log(user, usern);
-  //console.log("new score " + usern + " " + score.id, map);
   if (!map) {
     global.janebot.bot.guilds
       .get(gid)
