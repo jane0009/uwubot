@@ -454,7 +454,8 @@ let queryApi = async function() {
             });
           } catch (e) {
             if (global.debug) {
-              console.warn(name, e);
+              console.warn(name)
+              console.warn(e);
             }
           }
           //console.log("dat", name, data);
@@ -516,7 +517,7 @@ let queryApi = async function() {
   );
   for (user in dat) {
     if(global.debug) {
-      console.log(user, dat[user].chans)
+      console.log(user + " >> " + dat[user].chans)
     }
     for (map in dat[user].maps) {
       if (
