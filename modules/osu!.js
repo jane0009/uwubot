@@ -514,10 +514,10 @@ let queryApi = async function() {
     path.join(dataFolder, "osudata.json"),
     JSON.stringify(map_data)
   );
-  if(global.debug) {
-    console.log(dat[user].chans)
-  }
   for (user in dat) {
+    if(global.debug) {
+      console.log(user, dat[user].chans)
+    }
     for (map in dat[user].maps) {
       if (
         dat[user].maps[map].rank != "F" ||
@@ -674,12 +674,12 @@ function wrap(score, mods, map, chans, user, usern, iter = 0) {
           usern +
           "]"
       );
-      if (iter < 20) {
+      if (iter < 5) {
         setTimeout(() => {
           wrap(score, mods, map, chans, user, usern, iter + 1);
         }, 30000);
       } else {
-        console.warn("could not embed play after 20 tries.");
+        console.warn("could not embed play after 5 tries.");
       }
     }
   }
