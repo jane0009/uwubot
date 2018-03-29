@@ -534,7 +534,7 @@ let queryApi = async function() {
       ) {
         let uniq = ArrNoDupe(dat[user].chans)
         if(global.debug) {
-          console.log(uniq)
+          console.log("GUILD UNIQUE " + uniq)
         }
         dat[user].chans = uniq
         distance(dat[user].chans, dat[user].maps[map], user);
@@ -672,6 +672,9 @@ function wrap(score, mods, map, chans, user, usern, iter = 0) {
     }
     for (guild in chans) {
       let nchans = ArrNoDupe(chans[guild]);
+      if(global.debug) {
+        console.log("CHAN UNIQUE " +nchans)
+      }
       for (chan in nchans) {
         if(global.debug) {
           console.log(guild + " >> " + chan)
