@@ -671,7 +671,7 @@ function wrap(score, mods, map, chans, user, usern, iter = 0) {
       pp = "unknown pp amount (calculation failed)";
     }
     for (guild in chans) {
-      let nchans = chans[guild];
+      let nchans = ArrNoDupe(chans[guild]);
       for (chan in nchans) {
         if(global.debug) {
           console.log(guild + " >> " + chan)
