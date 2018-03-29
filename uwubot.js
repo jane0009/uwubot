@@ -1,6 +1,7 @@
 const eris = require("eris");
 const retry = require("retry-as-promised");
 var Promise = require("bluebird");
+const hastebin = require("hastebin-generator")
 
 global.janebot = {};
 let janebot = global.janebot;
@@ -48,7 +49,9 @@ console.log = function(message, ...args) {
     if (message.length < 1800) {
         chLog(date + " |INFO| " + message)
     } else {
-        chLog(date + " |INFO| message too long to display, check logs...")
+        hastebin(message, 'bash').then(c=>{
+            chLog(date + " |INFO| message too long to display: " + c)
+        })
     }
     _log(date, "|INFO|", ...args);
 };
@@ -65,7 +68,9 @@ console.warn = function(message, ...args) {
     if (message.length < 1800) {
         chLog(date + " |WARN| " + message)
     } else {
-        chLog(date + " |WARN| message too long to display, check logs...")
+        hastebin(message, 'bash').then(c=>{
+            chLog(date + " |WARN| message too long to display: " + c)
+        })
     }
     _log(date, "|WARN|", ...args);
 };
@@ -83,7 +88,9 @@ console.error = function(message, ...options) {
     if (message.length < 1800) {
         chLog(date + " |ERROR| " + message)
     } else {
-        chLog(date + " |ERROR| message too long to display, check logs...")
+        hastebin(message, 'bash').then(c=>{
+            chLog(date + " |ERROR| message too long to display: " + c)
+        })
     }
     _err(date + " |ERROR| " + message, ...options);
 };
@@ -126,7 +133,7 @@ janebot.logGuild = "141930443518771200"
 janebot.logChannel = "344996878829617152"
 
 function chLog(data) {
-    if (global.janebot.logChannel && global.janebot.logGuild) {
+    if (global.janebot.logChannel && global.janebot.logGuild && janebot.bot.guilds) {
         try {
             janebot.bot.guilds.get(global.janebot.logGuild).channels.get(global.janebot.logChannel).createMessage(data)
         } catch (e) {
