@@ -126,8 +126,12 @@ janebot.logGuild = "141930443518771200"
 janebot.logChannel = "344996878829617152"
 
 function chLog(data) {
-    if (janebot.logChannel && janebot.logGuild) {
-        janebot.bot.guilds.get(janebot.logGuild).channels.get(janebot.logChannel).createMessage(data)
+    if (global.janebot.logChannel && global.janebot.logGuild) {
+        try {
+            janebot.bot.guilds.get(global.janebot.logGuild).channels.get(global.janebot.logChannel).createMessage(data)
+        } catch (e) {
+            _err(e)
+        }
     }
 }
 janebot.commands = {
@@ -305,8 +309,7 @@ for (let f of files) {
                 if (!e.commands[cmd].disabled) {
                     if (e.commands[cmd].tags) {
                         janebot.tagbase[cmd] = e.commands[cmd].tags ?
-                            e.commands[cmd].tags :
-                            [];
+                            e.commands[cmd].tags : [];
                         janebot.tagbase[cmd].push(cmd);
                         let aliases = Object.filter(global.janebot.aliases, a => {
                             if (global.debug) {
