@@ -33,6 +33,16 @@ if (cfg.set) {
 } else {
   tracking = cfg || {};
 }
+function containsObject(obj, list) {
+  var i;
+  for (i = 0; i < list.length; i++) {
+      if (list[i] === obj) {
+          return true;
+      }
+  }
+
+  return false;
+}
 module.exports = {
   disabled: false,
   name: "osu!",
@@ -468,7 +478,20 @@ let queryApi = async function() {
           //console.log("nms", name, newMapSet);
           if (newMapSet && newMapSet[0]) {
             dat[user].chans = {};
-            dat[user].chans[guild] = [channel];
+            if(tracking[guild][channel][user].trackedChans) {
+              dat[user].chans = tracking[guild][channel][user].trackedChans
+            }
+            else {
+              tracking[guild][channel][user].trackedChans = {}
+            }
+            if(!dat[user].chans[guild]) {
+              dat[user].chans[guild] = [channel];
+            }
+            else {
+              if(!dat[user].chans[guild].includes(channel)) {
+                dat[user].chans[guild].push(channel);
+              }
+            }
             dat[user].maps = newMapSet;
             tracking[guild][channel][user].latest = newMapSet;
           }
@@ -491,6 +514,9 @@ let queryApi = async function() {
     path.join(dataFolder, "osudata.json"),
     JSON.stringify(map_data)
   );
+  if(global.debug) {
+    console.log(dat[user].chans)
+  }
   for (user in dat) {
     for (map in dat[user].maps) {
       if (
@@ -633,7 +659,9 @@ function wrap(score, mods, map, chans, user, usern, iter = 0) {
     for (guild in chans) {
       let nchans = chans[guild];
       for (chan in nchans) {
-        //console.log(guild,chan)
+        if(global.debug) {
+          console.log(guild,chan)
+        }
         createEmbed(score, mods, map, guild, nchans[chan], user, usern, pp);
       }
     }

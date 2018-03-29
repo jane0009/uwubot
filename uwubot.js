@@ -35,7 +35,7 @@ function pad(num, size) {
 }
 const _log = console.log.bind(console);
 
-console.log = function(...args) {
+console.log = function(message, ...args) {
   let d = new Date();
   let date =
     pad(d.getHours(), 2) +
@@ -45,9 +45,15 @@ console.log = function(...args) {
     pad(d.getSeconds(), 2) +
     "." +
     pad(d.getMilliseconds(), 3);
+    if(message.length < 1800) {
+      chLog(date + " |INFO| " + message)
+    }
+    else {
+      chLog(date + " |INFO| message too long to display, check logs...")
+    }
   _log(date, "|INFO|", ...args);
 };
-console.warn = function(...args) {
+console.warn = function(message, ...args) {
   let d = new Date();
   let date =
     d.getHours() +
@@ -57,6 +63,12 @@ console.warn = function(...args) {
     d.getSeconds() +
     "." +
     d.getMilliseconds();
+    if(message.length < 1800) {
+      chLog(date + " |WARN| " + message)
+    }
+    else {
+      chLog(date + " |WARN| message too long to display, check logs...")
+    }
   _log(date, "|WARN|", ...args);
 };
 const _err = console.error.bind(console);
@@ -70,7 +82,12 @@ console.error = function(message, ...options) {
     d.getSeconds() +
     "." +
     d.getMilliseconds();
-    chLog(date + " |ERROR| " + message)
+    if(message.length < 1800) {
+      chLog(date + " |ERROR| " + message)
+    }
+    else {
+      chLog(date + " |ERROR| message too long to display, check logs...")
+    }
   _err(date + " |ERROR| " + message, ...options);
 };
 //
