@@ -46,7 +46,7 @@ console.log = function(message, ...args) {
         pad(d.getSeconds(), 2) +
         "." +
         pad(d.getMilliseconds(), 3);
-    if (message.length < 1800) {
+    if (!message || message.length < 1800) {
         chLog(date + " |INFO| " + message)
     } else {
         hastebin(message, 'bash').then(c=>{
@@ -65,7 +65,7 @@ console.warn = function(message, ...args) {
         d.getSeconds() +
         "." +
         d.getMilliseconds();
-    if (message.length < 1800) {
+    if (!message || message.length < 1800) {
         chLog(date + " |WARN| " + message)
     } else {
         hastebin(message, 'bash').then(c=>{
@@ -85,7 +85,7 @@ console.error = function(message, ...options) {
         d.getSeconds() +
         "." +
         d.getMilliseconds();
-    if (message.length < 1800) {
+    if (!message || message.length < 1800) {
         chLog(date + " |ERROR| " + message)
     } else {
         hastebin(message, 'bash').then(c=>{
