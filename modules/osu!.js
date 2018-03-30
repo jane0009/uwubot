@@ -532,11 +532,11 @@ let queryApi = async function() {
         dat[user].maps[map].rank != "F" ||
         dat[user].maps[map].maxCombo > 200
       ) {
-        let uniq = ArrNoDupe(dat[user].chans)
-        if(global.debug) {
-          console.log("GUILD UNIQUE " + uniq)
-        }
-        dat[user].chans = uniq
+        //let uniq = ArrNoDupe(dat[user].chans)
+        //if(global.debug) {
+        //  console.log("GUILD UNIQUE " + uniq)
+        //}
+        //dat[user].chans = uniq
         distance(dat[user].chans, dat[user].maps[map], user);
       }
     }
