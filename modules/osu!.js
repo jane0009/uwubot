@@ -11,23 +11,20 @@ let dataFolder = path.join("/home/jane/uwubot", "data");
 let cfg, data;
 try {
   cfg = require(path.join(dataFolder, "osutracking.json"));
-}
-catch (e) {
+} catch (e) {
   fs.writeFileSync(path.join(dataFolder, "osutracking.json"), "{}");
 }
 try {
   data = require(path.join(dataFolder, "osudata.json"));
-}
-catch (e) {
+} catch (e) {
   fs.writeFileSync(path.join(dataFolder, "osudata.json"), "{}");
 }
 if (cfg.set) {
   tracking = cfg.track || {};
   set = cfg.set || {};
-  if(cfg.mapdata) {
+  if (cfg.mapdata) {
     map_data = cfg.mapdata || {};
-  }
-  else {
+  } else {
     map_data = data;
   }
 } else {
@@ -36,20 +33,18 @@ if (cfg.set) {
 function containsObject(obj, list) {
   var i;
   for (i = 0; i < list.length; i++) {
-      if (list[i] === obj) {
-          return true;
-      }
+    if (list[i] === obj) {
+      return true;
+    }
   }
 
   return false;
 }
 function ArrNoDupe(a) {
   var temp = {};
-  for (var i = 0; i < a.length; i++)
-      temp[a[i]] = true;
+  for (var i = 0; i < a.length; i++) temp[a[i]] = true;
   var r = [];
-  for (var k in temp)
-      r.push(k);
+  for (var k in temp) r.push(k);
   return r;
 }
 module.exports = {
@@ -83,7 +78,7 @@ module.exports = {
         }
         fs.writeFileSync(
           path.join(dataFolder, "osutracking.json"),
-          JSON.stringify({ track: tracking, set: set})
+          JSON.stringify({ track: tracking, set: set })
         );
         fs.writeFileSync(
           path.join(dataFolder, "osudata.json"),
@@ -356,7 +351,7 @@ module.exports = {
               msg.channel.createMessage("Now tracking " + name);
               fs.writeFileSync(
                 path.join(dataFolder, "osutracking.json"),
-                JSON.stringify({ track: tracking, set: set})
+                JSON.stringify({ track: tracking, set: set })
               );
               fs.writeFileSync(
                 path.join(dataFolder, "osudata.json"),
@@ -373,7 +368,7 @@ module.exports = {
             delete tracking[msg.guild.id][msg.channel.id][name];
             fs.writeFileSync(
               path.join(dataFolder, "osutracking.json"),
-              JSON.stringify({ track: tracking, set: set})
+              JSON.stringify({ track: tracking, set: set })
             );
             fs.writeFileSync(
               path.join(dataFolder, "osudata.json"),
@@ -399,9 +394,11 @@ module.exports = {
     cache: {
       desc: "clears the cache",
       perm: "owner",
-      func: async function(msg,args,data) {
-        let total = args.split(" ")[0] == "true"
-        msg.channel.createMessage("wiping cache... full wipe is " + (total ? "on" : "off"))
+      func: async function(msg, args, data) {
+        let total = args.split(" ")[0] == "true";
+        msg.channel.createMessage(
+          "wiping cache... full wipe is " + (total ? "on" : "off")
+        );
         gc(total);
       }
     }
@@ -487,17 +484,15 @@ let queryApi = async function() {
           //console.log("nms", name, newMapSet);
           if (newMapSet && newMapSet[0]) {
             dat[user].chans = {};
-            if(tracking[guild][channel][user].trackedChans) {
-              dat[user].chans = tracking[guild][channel][user].trackedChans
+            if (tracking[guild][channel][user].trackedChans) {
+              dat[user].chans = tracking[guild][channel][user].trackedChans;
+            } else {
+              tracking[guild][channel][user].trackedChans = {};
             }
-            else {
-              tracking[guild][channel][user].trackedChans = {}
-            }
-            if(!dat[user].chans[guild]) {
+            if (!dat[user].chans[guild]) {
               dat[user].chans[guild] = [channel];
-            }
-            else {
-              if(!dat[user].chans[guild].includes(channel)) {
+            } else {
+              if (!dat[user].chans[guild].includes(channel)) {
                 dat[user].chans[guild].push(channel);
               }
             }
@@ -517,15 +512,15 @@ let queryApi = async function() {
   }
   fs.writeFileSync(
     path.join(dataFolder, "osutracking.json"),
-    JSON.stringify({ track: tracking, set: set})
+    JSON.stringify({ track: tracking, set: set })
   );
   fs.writeFileSync(
     path.join(dataFolder, "osudata.json"),
     JSON.stringify(map_data)
   );
   for (user in dat) {
-    if(global.debug) {
-      console.log(user + " >> " + dat[user].chans)
+    if (global.debug) {
+      console.log(user + " >> " + dat[user].chans);
     }
     for (map in dat[user].maps) {
       if (
@@ -577,7 +572,7 @@ function getColor(rank) {
 async function backup() {
   fs.writeFileSync(
     path.join(dataFolder, ".osubackup.json"),
-    JSON.stringify({ track: tracking, set: set})
+    JSON.stringify({ track: tracking, set: set })
   );
 }
 async function gc(total = false) {
@@ -591,7 +586,7 @@ async function gc(total = false) {
   }
   fs.writeFileSync(
     path.join(dataFolder, "osutracking.json"),
-    JSON.stringify({ track: tracking, set: set})
+    JSON.stringify({ track: tracking, set: set })
   );
   fs.writeFileSync(
     path.join(dataFolder, "osudata.json"),
@@ -610,43 +605,50 @@ async function pushLatest(chans, score, usern) {
   let map = mapL[0];
   //console.log(score,map);
   let mods = score.raw_mods;
-  if (map.mode == "Standard") {
-    if (!map_data[score.beatmapId]) map_data[score.beatmapId] = {};
-    if (!map_data[score.beatmapId][mods]) {
-      let url = `https://osu.ppy.sh/osu/${score.beatmapId}`;
-      let exec = require("child_process").exec;
-      let mdata;
-      await exec(`curl ${url}`, (e, out, err) => {
-        if (e) {
-          if (global.error) {
-            console.error(e);
+  switch (map.mode) {
+    case "Standard": {
+      if (!map_data[score.beatmapId]) map_data[score.beatmapId] = {};
+      if (!map_data[score.beatmapId][mods]) {
+        let url = `https://osu.ppy.sh/osu/${score.beatmapId}`;
+        let exec = require("child_process").exec;
+        let mdata;
+        await exec(`curl ${url}`, (e, out, err) => {
+          if (e) {
+            if (global.error) {
+              console.error(e);
+            }
           }
-        }
-        //console.log(out);
-        mdata = out;
-        let stars;
-        if (mdata != undefined) {
-          let sdata = new ojsama.parser().feed(mdata);
-          stars = new ojsama.diff().calc({ map: sdata.map, mods: mods });
-        }
-        if (stars) {
-          map_data[score.beatmapId].map = stars.map;
-          map_data[score.beatmapId].date = new Date().getTime();
-          stars.map = {};
-        }
-        map_data[score.beatmapId][mods] = stars || {};
-      });
-      //console.log(mdata);
+          //console.log(out);
+          mdata = out;
+          let stars;
+          if (mdata != undefined) {
+            let sdata = new ojsama.parser().feed(mdata);
+            stars = new ojsama.diff().calc({ map: sdata.map, mods: mods });
+          }
+          if (stars) {
+            map_data[score.beatmapId].map = stars.map;
+            map_data[score.beatmapId].date = new Date().getTime();
+            stars.map = {};
+          }
+          map_data[score.beatmapId][mods] = stars || {};
+        });
+        //console.log(mdata);
+      }
+      fs.writeFileSync(
+        path.join(dataFolder, "osutracking.json"),
+        JSON.stringify({ track: tracking, set: set })
+      );
+      fs.writeFileSync(
+        path.join(dataFolder, "osudata.json"),
+        JSON.stringify(map_data)
+      );
+      wrap(score, mods, map, chans, user, usern);
+      break;
     }
-    fs.writeFileSync(
-      path.join(dataFolder, "osutracking.json"),
-      JSON.stringify({ track: tracking, set: set})
-    );
-    fs.writeFileSync(
-      path.join(dataFolder, "osudata.json"),
-      JSON.stringify(map_data)
-    );
-    wrap(score, mods, map, chans, user, usern);
+    default:
+      if (global.debug) {
+        console.warn(map.mode + " || " + score.beatmapId);
+      }
   }
 }
 function wrap(score, mods, map, chans, user, usern, iter = 0) {
@@ -672,12 +674,12 @@ function wrap(score, mods, map, chans, user, usern, iter = 0) {
     }
     for (guild in chans) {
       let nchans = ArrNoDupe(chans[guild]);
-      if(global.debug) {
-        console.log("CHAN UNIQUE " +nchans)
+      if (global.debug) {
+        console.log("CHAN UNIQUE " + nchans);
       }
       for (chan in nchans) {
-        if(global.debug) {
-          console.log(guild + " >> " + chan)
+        if (global.debug) {
+          console.log(guild + " >> " + chan);
         }
         createEmbed(score, mods, map, guild, nchans[chan], user, usern, pp);
       }
@@ -717,28 +719,34 @@ function createEmbed(score, mods, map, gid, cid, user, usern, pp) {
   var date = new Date(null);
   date.setSeconds(map.time.total); // specify value for SECONDS here
   var result = date.toISOString().substr(11, 8);
-  if(global.debug) {
-    console.log(gid, " || ", cid)
+  if (global.debug) {
+    console.log(gid, " || ", cid);
   }
-  if(!gid) {
-    delete tracking[gid]
-    console.warn(gid + ", " + cid + " does not exist! deleting guild settings...")
+  if (!gid) {
+    delete tracking[gid];
+    console.warn(
+      gid + ", " + cid + " does not exist! deleting guild settings..."
+    );
     return;
-  }
-  else if(!cid) {
-    delete tracking[gid][cid]
-    console.warn(gid + ", " + cid + " does not exist! deleting channel settings...")
+  } else if (!cid) {
+    delete tracking[gid][cid];
+    console.warn(
+      gid + ", " + cid + " does not exist! deleting channel settings..."
+    );
     return;
-  }
-  else if(!global.janebot.bot.guilds.get(gid)) {
-    delete tracking[gid]
-    console.warn(gid + ", " + cid + " does not exist! deleting guild settings...")
+  } else if (!global.janebot.bot.guilds.get(gid)) {
+    delete tracking[gid];
+    console.warn(
+      gid + ", " + cid + " does not exist! deleting guild settings..."
+    );
     return;
   }
   let chan = global.janebot.bot.guilds.get(gid).channels.get(cid);
-  if(!chan) {
-    delete tracking[gid][cid]
-    console.warn(gid + ", " + cid + " does not exist! deleting channel settings...")
+  if (!chan) {
+    delete tracking[gid][cid];
+    console.warn(
+      gid + ", " + cid + " does not exist! deleting channel settings..."
+    );
     return;
   }
   chan.createMessage({
@@ -792,6 +800,9 @@ function determineAcc(type, counts, round = true) {
     case "Ctb":
     case "Mania":
     case "Taiko":
+      return round
+        ? roundAcc(taikoAcc(counts["300"], counts["50"], counts["miss"]))
+        : taikoAcc(counts["300"], counts["50"], counts["miss"]);
     default:
       return 0;
   }
@@ -813,6 +824,16 @@ function standardAcc(count300, count100, count50, countmiss) {
   //console.log("acd",accD,"acn",accN,"fac",finalAcc);
   return finalAcc;
 }
+
+function taikoAcc(countGreat, countGood, countBad) {
+  //console.log("cm",countmiss,"c5",count50,50*count50,"c1",count100,100*count100,"c3",count300,300*count300,"ct",(countmiss + count50 + count100 + count300),((countmiss + count50 + count100 + count300)*300))
+  let accN = parseInt(countGreat) + 0.5 * parseInt(countGood);
+  let accD = parseInt(countBad) + parseInt(countGood) + parseInt(countGreat);
+  let finalAcc = accN / accD * 100;
+  //console.log("acd",accD,"acn",accN,"fac",finalAcc);
+  return finalAcc;
+}
+
 function roundAcc(acc) {
   return Math.round(acc * 100) / 100;
 }
