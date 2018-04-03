@@ -46,12 +46,12 @@ console.log = function(message, ...args) {
         pad(d.getSeconds(), 2) +
         "." +
         pad(d.getMilliseconds(), 3);
-    if (!message || message.length < 1800) {
-        chLog(date + " |INFO| " + message)
-    } else {
+    if (message && message.length > 1800) {
         hastebin(message, 'bash').then(c=>{
             chLog(date + " |INFO| message too long to display: " + c)
         })
+    } else {
+        chLog(date + " |INFO| " + message)
     }
     _log(date, "|INFO|", ...args);
 };
@@ -65,13 +65,13 @@ console.warn = function(message, ...args) {
         d.getSeconds() +
         "." +
         d.getMilliseconds();
-    if (!message || message.length < 1800) {
-        chLog(date + " |WARN| " + message)
-    } else {
-        hastebin(message, 'bash').then(c=>{
-            chLog(date + " |WARN| message too long to display: " + c)
-        })
-    }
+        if (message && message.length > 1800) {
+            hastebin(message, 'bash').then(c=>{
+                chLog(date + " |WARN| message too long to display: " + c)
+            })
+        } else {
+            chLog(date + " |WARN| " + message)
+        }
     _log(date, "|WARN|", ...args);
 };
 const _err = console.error.bind(console);
@@ -85,13 +85,13 @@ console.error = function(message, ...options) {
         d.getSeconds() +
         "." +
         d.getMilliseconds();
-    if (!message || message.length < 1800) {
-        chLog(date + " |ERROR| " + message)
-    } else {
-        hastebin(message, 'bash').then(c=>{
-            chLog(date + " |ERROR| message too long to display: " + c)
-        })
-    }
+        if (message && message.length > 1800) {
+            hastebin(message, 'bash').then(c=>{
+                chLog(date + " |WARN| message too long to display: " + c)
+            })
+        } else {
+            chLog(date + " |WARN| " + message)
+        }
     _err(date + " |ERROR| " + message, ...options);
 };
 //
